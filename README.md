@@ -1,150 +1,126 @@
-# Utho Go SDK
+# Utho Go SDK & CLI
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/niteshkumarsinha/utho-sdk-go.svg)](https://pkg.go.dev/github.com/niteshkumarsinha/utho-sdk-go)
 
-The official Utho SDK for the Go programming language. This SDK allows you to easily interact with the Utho REST API v2 to manage your cloud resources, including Cloud Servers, VPCs, Kubernetes clusters, Databases, and more.
+The official project for interacting with the Utho Cloud API using Go. This repository contains both the **Utho Go SDK** for programmatic access and the **Utho CLI** for terminal-based management.
 
-## Features
+## 🚀 Key Features
 
-- **Full Coverage**: Implements all 22 Utho service categories.
-- **Modular Design**: Service-specific packages (e.g., `cloudserver`, `vpc`, `kubernetes`) for a clean and efficient development experience.
-- **Easy Initialization**: Single client entry point with lazy-loaded services.
-- **Developer Friendly**: Built-in Go structs for all request/response models.
+- **Full API Coverage**: Support for all 22 Utho service categories.
+- **Unified Client**: Easy initialization with lazy-loaded services.
+- **Powerful CLI**: Manage resources directly from your terminal.
+- **Flexible Configuration**: Securely store credentials in a config file or use environment variables.
 
-## Installation
+---
 
+## 🛠 Installation
+
+### Go SDK
+Add the SDK to your project:
 ```bash
 go get github.com/niteshkumarsinha/utho-sdk-go
 ```
 
-## Quick Start
+### Utho CLI
+Build the CLI tool from source:
+```bash
+go build -o utho ./cmd/utho/main.go
+# Optional: Move to your path
+mv utho /usr/local/bin/
+```
 
-### Authentication
+---
 
-You'll need a Utho API key. You can find or create one in the [Utho Console](https://console.utho.com/).
+## 🔑 Configuration
 
+The SDK and CLI both support two methods of authentication.
+
+### 1. Configuration File (Recommended for CLI)
+Run the `configure` command (CLI only) or create the file manually at `~/.utho/config.json`:
+```bash
+./utho configure
+```
+```json
+{
+  "apikey": "your-api-key-here"
+}
+```
+
+### 2. Environment Variables
+Set the `UTHO_APIKEY` environment variable in your `~/.bash_profile` or `~/.zshrc`:
+```bash
+export UTHO_APIKEY="your-api-key-here"
+```
+
+---
+
+## 📖 Usage Examples
+
+### Using the Go SDK
 ```go
 package main
 
 import (
     "fmt"
-    "log"
-    "os"
-
     "github.com/niteshkumarsinha/utho-sdk-go"
 )
 
 func main() {
-    // 1. Initialize the client
-    apiKey := os.Getenv("UTHO_API_KEY")
-    client, err := utho.NewClient(apiKey)
-    if err != nil {
-        log.Fatalf("failed to create client: %v", err)
-    }
-
-    // 2. Use a service (e.g., CloudServer)
-    servers, err := client.CloudServer.List()
-    if err != nil {
-        log.Fatalf("failed to list servers: %v", err)
-    }
-
+    client, _ := utho.NewClient("") // Automatically looks for UTHO_APIKEY or config file
+    servers, _ := client.CloudServer.List()
     for _, s := range servers {
-        fmt.Printf("Server: %s (%s) - Status: %s\n", s.Hostname, s.IP, s.Status)
+        fmt.Printf("Server: %s (%s)\n", s.Hostname, s.IP)
     }
 }
 ```
 
-## Command Line Interface (CLI)
-
-The Utho SDK includes a powerful CLI to manage your resources directly from the terminal.
-
-### Installation & Build
-
+### Using the Utho CLI
 ```bash
-go build -o utho ./cmd/utho/main.go
+# List all cloud servers
+utho cloudserver list
+
+# Get account information
+utho account info
+
+# List VPCs
+utho vpc list
 ```
 
-### Configuration
+---
 
-You can configure your API Key using the `configure` command:
+## 📊 Service Coverage & CLI Mapping
 
-```bash
-./utho configure
-```
-
-Or by setting an environment variable:
-
-```bash
-export UTHO_APIKEY="your-api-key"
-```
-
-### Usage Examples
-
-```bash
-./utho cloudserver list
-./utho account info
-./utho vpc list
-```
-
-## Service Coverage
-
-The SDK supports the following services:
-
-| Category | Client Field | Package |
+| Category | SDK Client Field | CLI Command |
 | :--- | :--- | :--- |
-| **Compute** | `client.CloudServer` | `services/cloudserver` |
-| | `client.Autoscaling` | `services/autoscaling` |
-| | `client.Backups` | `services/backups` |
-| | `client.Snapshots` | `services/snapshots` |
-| | `client.ISO` | `services/iso` |
-| **Networking** | `client.VPC` | `services/vpc` |
-| | `client.LoadBalancer` | `services/loadbalancer` |
-| | `client.Networking` | `services/networking` |
-| | `client.VPN` | `services/vpn` |
-| | `client.WAF` | `services/waf` |
-| **Storage** | `client.Storage` | `services/storage` |
-| | `client.ObjectStorage` | `services/objectstorage` |
-| **Managed Services** | `client.Database` | `services/database` |
-| | `client.Kubernetes` | `services/kubernetes` |
-| **App Services** | `client.SQS` | `services/sqs` |
-| | `client.Registry` | `services/registry` |
-| | `client.Stacks` | `services/stacks` |
-| | `client.Transfer` | `services/transfer` |
-| **Admin & Security** | `client.Account` | `services/account` |
-| | `client.Security` | `services/security` |
-| | `client.SSL` | `services/ssl` |
-| | `client.Monitoring` | `services/monitoring` |
+| **Compute** | `client.CloudServer` | `utho cloudserver` |
+| | `client.Autoscaling` | `utho autoscaling` |
+| | `client.Backups` | `utho backups` |
+| | `client.Snapshots` | `utho snapshots` |
+| | `client.ISO` | `utho iso` |
+| **Networking** | `client.VPC` | `utho vpc` |
+| | `client.LoadBalancer` | `utho loadbalancer` |
+| | `client.Networking` | `utho networking` |
+| | `client.VPN` | `utho vpn` |
+| | `client.WAF` | `utho waf` |
+| **Storage** | `client.Storage` | `utho storage` |
+| | `client.ObjectStorage` | `utho objectstorage` |
+| **Managed Services**| `client.Database` | `utho database` |
+| | `client.Kubernetes` | `utho kubernetes` |
+| **App Services** | `client.SQS` | `utho sqs` |
+| | `client.Registry` | `utho registry` |
+| | `client.Stacks` | `utho stacks` |
+| | `client.Transfer` | `utho transfer` |
+| **Admin & Security**| `client.Account` | `utho account` |
+| | `client.Security` | `utho security` |
+| | `client.SSL` | `utho ssl` |
+| | `client.Monitoring` | `utho monitoring` |
 
-## Examples
+---
 
-Detailed examples for each service can be found in the [examples/services](https://github.com/niteshkumarsinha/utho-sdk-go/tree/main/examples/services) directory.
-
-### Deploying a Cloud Server
-
-```go
-params := cloudserver.DeployParams{
-    DCSlug:       "inmumbaizone2",
-    PlanID:       "10045",
-    BillingCycle: "hourly",
-    Image:        "ubuntu-22.04-x86_64",
-    Cloud: []cloudserver.InstanceConfig{
-        {Hostname: "my-web-server"},
-    },
-}
-
-resp, err := client.CloudServer.Deploy(params)
-```
-
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-### Running Tests
-
+## 🧪 Testing
 ```bash
 go test ./...
 ```
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 📄 License
+This project is licensed under the MIT License.
