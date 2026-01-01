@@ -24,6 +24,9 @@
             <div class="nav-group">
                 <div class="nav-title">Compute</div>
                 <a class="nav-item active" data-section="home">Introduction</a>
+                <a class="nav-item" data-section="installation">Installation</a>
+                <a class="nav-item" data-section="auth">Authentication</a>
+                <a class="nav-item" data-section="cli">CLI</a>
                 <a class="nav-item" data-section="cloudserver">Cloud Server</a>
                 <a class="nav-item" data-section="autoscaling">Autoscaling</a>
                 <a class="nav-item" data-section="backups">Backups</a>
@@ -124,7 +127,8 @@
 
                 <h2>Obtaining an API Key</h2>
                 <p>You can manage your API keys through the Utho Console or programmatically via the
-                    <code>Security</code> service.</p>
+                    <code>Security</code> service.
+                </p>
 
                 <h2>Using the API Key</h2>
                 <p>Pass your API key when initializing the client:</p>
@@ -133,6 +137,25 @@
                 <p>For better security, we recommend using environment variables:</p>
                 <pre><code>apiKey := os.Getenv("UTHO_API_KEY")
 client, err := utho.NewClient(apiKey)</code></pre>
+            </section>
+
+            <section id="cli">
+                <h1>Command Line Interface (CLI)</h1>
+                <p>Manage your Utho cloud resources directly from the terminal.</p>
+
+                <h2>Build</h2>
+                <pre><code>go build -o utho ./cmd/utho/main.go</code></pre>
+
+                <h2>Configuration</h2>
+                <p>Run the initialization command or set an environment variable:</p>
+                <pre><code>./utho configure</code></pre>
+                <p>Or:</p>
+                <pre><code>export UTHO_APIKEY="your-api-key"</code></pre>
+
+                <h2>Usage</h2>
+                <pre><code>./utho cloudserver list
+./utho vpc list
+./utho account info</code></pre>
             </section>
 
             <section id="cloudserver">

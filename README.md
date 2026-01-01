@@ -54,6 +54,38 @@ func main() {
 }
 ```
 
+## Command Line Interface (CLI)
+
+The Utho SDK includes a powerful CLI to manage your resources directly from the terminal.
+
+### Installation & Build
+
+```bash
+go build -o utho ./cmd/utho/main.go
+```
+
+### Configuration
+
+You can configure your API Key using the `configure` command:
+
+```bash
+./utho configure
+```
+
+Or by setting an environment variable:
+
+```bash
+export UTHO_APIKEY="your-api-key"
+```
+
+### Usage Examples
+
+```bash
+./utho cloudserver list
+./utho account info
+./utho vpc list
+```
+
 ## Service Coverage
 
 The SDK supports the following services:
