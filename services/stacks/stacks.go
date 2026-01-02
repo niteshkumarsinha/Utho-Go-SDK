@@ -73,3 +73,46 @@ func (s *StacksService) Create(params CreateParams) error {
 	}
 	return nil
 }
+
+// Delete destroys a stack.
+func (s *StacksService) Delete(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/stacks/%s", id)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// UpdateParams represents parameters for updating a stack.
+type UpdateParams struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Images      string `json:"images"`
+	Status      string `json:"status"`
+	Script      string `json:"script"`
+}
+
+// Update updates a stack configuration.
+func (s *StacksService) Update(id string, params UpdateParams) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/stacks/%s", id)
+	err := s.client.Request(http.MethodPut, url, params, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}

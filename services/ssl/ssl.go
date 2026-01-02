@@ -45,3 +45,44 @@ func (s *SslService) List() ([]Certificate, error) {
 	}
 	return resp.Data, nil
 }
+
+// CreateParams represents the parameters for creating (uploading) an SSL certificate.
+type CreateParams struct {
+	Name        string `json:"name"`
+	Certificate string `json:"certificate"`
+	PrivateKey  string `json:"private_key"`
+	Chain       string `json:"chain"`
+}
+
+// Create uploads a new SSL certificate.
+func (s *SslService) Create(params CreateParams) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	err := s.client.Request(http.MethodPost, "/certificates", params, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// Delete destroys an SSL certificate.
+func (s *SslService) Delete(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/certificates/%s", id)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}

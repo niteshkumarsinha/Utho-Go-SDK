@@ -46,3 +46,49 @@ func (s *MonitoringService) ListAlertPolicies() ([]AlertPolicy, error) {
 	}
 	return resp.Data, nil
 }
+
+// CreateAlertPolicyParams represents the parameters for creating an alert policy.
+type CreateAlertPolicyParams struct {
+	Label        string   `json:"label"`
+	ResourceType string   `json:"resource_type"`
+	Contacts     []string `json:"contacts"`
+	Thresholds   struct {
+		CPU       int `json:"cpu,omitempty"`
+		RAM       int `json:"ram,omitempty"`
+		Disk      int `json:"disk,omitempty"`
+		Bandwidth int `json:"bandwidth,omitempty"`
+	} `json:"thresholds"`
+}
+
+// CreateAlertPolicy creates a new monitoring alert policy.
+func (s *MonitoringService) CreateAlertPolicy(params CreateAlertPolicyParams) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	err := s.client.Request(http.MethodPost, "/monitoring/alerts/create", params, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// DeleteAlertPolicy deletes a monitoring alert policy.
+func (s *MonitoringService) DeleteAlertPolicy(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/monitoring/alerts/%s/delete", id)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}

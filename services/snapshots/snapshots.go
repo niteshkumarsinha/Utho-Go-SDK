@@ -75,3 +75,20 @@ func (s *SnapshotsService) Create(params CreateParams) (*CreateResponse, error) 
 	}
 	return &resp, nil
 }
+
+// Delete removes a snapshot.
+func (s *SnapshotsService) Delete(cloudID, snapshotID string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/cloud/%s/snapshot/%s/delete", cloudID, snapshotID)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}

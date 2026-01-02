@@ -90,3 +90,105 @@ func (s *CloudServerService) Deploy(params DeployParams) (*DeployResponse, error
 	}
 	return &resp, nil
 }
+// Get retrieves details about a single cloud server by its ID.
+func (s *CloudServerService) Get(id string) (*Instance, error) {
+	var resp struct {
+		Status  string   `json:"status"`
+		Message string   `json:"message"`
+		Data    Instance `json:"data"`
+	}
+	url := fmt.Sprintf("/cloud/%s", id)
+	err := s.client.Request(http.MethodGet, url, nil, &resp)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Status != "success" {
+		return nil, fmt.Errorf("API error: %s", resp.Message)
+	}
+	return &resp.Data, nil
+}
+
+// Delete destroys a cloud server by its ID.
+func (s *CloudServerService) Delete(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/cloud/%s/destroy", id)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// PowerOn starts a cloud server by its ID.
+func (s *CloudServerService) PowerOn(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/cloud/%s/poweron/", id)
+	err := s.client.Request(http.MethodPost, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// PowerOff stops a cloud server by its ID.
+func (s *CloudServerService) PowerOff(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/cloud/%s/poweroff/", id)
+	err := s.client.Request(http.MethodPost, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// HardReboot performs a hard reboot of a cloud server by its ID.
+func (s *CloudServerService) HardReboot(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/cloud/%s/hardreboot/", id)
+	err := s.client.Request(http.MethodPost, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// ResetPassword resets the root/administrator password for a cloud server by its ID.
+func (s *CloudServerService) ResetPassword(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/cloud/%s/resetpassword/", id)
+	err := s.client.Request(http.MethodPost, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}

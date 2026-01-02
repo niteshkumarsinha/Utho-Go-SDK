@@ -75,3 +75,42 @@ func (s *LoadBalancerService) Create(params CreateParams) (*CreateResponse, erro
 	}
 	return &resp, nil
 }
+
+// Delete destroys a load balancer.
+func (s *LoadBalancerService) Delete(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/loadbalancer/%s/destroy/", id)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// UpdateParams represents the parameters for updating a load balancer.
+type UpdateParams struct {
+	Name string `json:"name"`
+}
+
+// Update updates a load balancer's configuration.
+func (s *LoadBalancerService) Update(id string, params UpdateParams) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/loadbalancer/%s/update", id)
+	err := s.client.Request(http.MethodPut, url, params, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}

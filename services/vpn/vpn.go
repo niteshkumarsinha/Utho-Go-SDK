@@ -46,3 +46,43 @@ func (s *VpnService) List() ([]VpnInstance, error) {
 	}
 	return resp.Data, nil
 }
+
+// CreateParams represents the parameters for creating (deploying) a VPN.
+type CreateParams struct {
+	Name   string `json:"name"`
+	DCSlug string `json:"dcslug"`
+	Plan   string `json:"plan"`
+}
+
+// Create deploys a new VPN instance.
+func (s *VpnService) Create(params CreateParams) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	err := s.client.Request(http.MethodPost, "/vpn/create", params, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// Delete destroys a VPN instance.
+func (s *VpnService) Delete(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/vpn/%s/delete", id)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}

@@ -75,3 +75,20 @@ func (s *VPCService) Create(params CreateParams) (*CreateResponse, error) {
 	}
 	return &resp, nil
 }
+
+// Delete destroys a Virtual Private Cloud (VPC) by its ID.
+func (s *VPCService) Delete(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/vpc/%s", id)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}

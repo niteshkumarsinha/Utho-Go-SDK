@@ -30,7 +30,9 @@ import (
 )
 
 const (
+	// DefaultBaseURL is the default endpoint for the Utho API v2.
 	DefaultBaseURL = "https://api.utho.com/v2"
+	// DefaultTimeout is the default timeout for HTTP requests to the API.
 	DefaultTimeout = 30 * time.Second
 )
 

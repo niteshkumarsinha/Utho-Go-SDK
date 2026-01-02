@@ -45,3 +45,82 @@ func (s *WafService) List() ([]WafInstance, error) {
 	}
 	return resp.Data, nil
 }
+
+// CreateParams represents the parameters for creating a WAF.
+type CreateParams struct {
+	Name   string `json:"name"`
+	DCSlug string `json:"dcslug"`
+}
+
+// Create creates a new WAF instance.
+func (s *WafService) Create(params CreateParams) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	err := s.client.Request(http.MethodPost, "/waf/create", params, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// Delete destroys a WAF instance.
+func (s *WafService) Delete(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/waf/%s/delete", id)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// AttachParams represents parameters for attaching WAF to a resource.
+type AttachParams struct {
+	ResourceID   string `json:"resource_id"`
+	ResourceType string `json:"resource_type"`
+}
+
+// Attach attaches a WAF to a resource (e.g. Load Balancer).
+func (s *WafService) Attach(wafID string, params AttachParams) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/waf/%s/attach", wafID)
+	err := s.client.Request(http.MethodPost, url, params, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// Detach detaches a WAF from a resource.
+func (s *WafService) Detach(wafID string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/waf/%s/detach", wafID)
+	err := s.client.Request(http.MethodPost, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}

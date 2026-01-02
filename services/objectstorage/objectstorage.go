@@ -74,3 +74,66 @@ func (s *ObjectStorageService) CreateBucket(params CreateBucketParams) (*CreateB
 	}
 	return &resp, nil
 }
+
+// DeleteBucket destroys an object storage bucket.
+func (s *ObjectStorageService) DeleteBucket(dcslug, name string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/objectstorage/%s/bucket/%s/delete/", dcslug, name)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// AccessKey represents an Object Storage Access Key.
+type AccessKey struct {
+	AccessKey string `json:"access_key"`
+	SecretKey string `json:"secret_key"`
+	Status    string `json:"status"`
+}
+
+// ListAccessKeysResponse represents the response for listing access keys.
+type ListAccessKeysResponse struct {
+	Status  string      `json:"status"`
+	Message string      `json:"message"`
+	Data    []AccessKey `json:"data"`
+}
+
+// ListAccessKeys returns a list of all access keys for a specific datacenter.
+func (s *ObjectStorageService) ListAccessKeys(dcslug string) ([]AccessKey, error) {
+	var resp ListAccessKeysResponse
+	url := fmt.Sprintf("/objectstorage/%s/accesskeys/", dcslug)
+	err := s.client.Request(http.MethodGet, url, nil, &resp)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Status != "success" {
+		return nil, fmt.Errorf("API error: %s", resp.Message)
+	}
+	return resp.Data, nil
+}
+
+// CreateAccessKey creates a new access key for object storage.
+func (s *ObjectStorageService) CreateAccessKey(dcslug string) (*AccessKey, error) {
+	var resp struct {
+		Status  string    `json:"status"`
+		Message string    `json:"message"`
+		Data    AccessKey `json:"data"`
+	}
+	url := fmt.Sprintf("/objectstorage/%s/accesskey/create", dcslug)
+	err := s.client.Request(http.MethodPost, url, nil, &resp)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Status != "success" {
+		return nil, fmt.Errorf("API error: %s", resp.Message)
+	}
+	return &resp.Data, nil
+}

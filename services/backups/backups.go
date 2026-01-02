@@ -48,3 +48,42 @@ func (s *BackupsService) List() ([]Backup, error) {
 	}
 	return resp.Data, nil
 }
+
+// Delete destroys a backup.
+func (s *BackupsService) Delete(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/backups/%s/delete", id)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// RestoreParams represents the parameters for restoring a backup.
+type RestoreParams struct {
+	CloudID string `json:"cloudid"`
+}
+
+// Restore restores a backup to a cloud server.
+func (s *BackupsService) Restore(backupID string, params RestoreParams) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/backups/%s/restore", backupID)
+	err := s.client.Request(http.MethodPost, url, params, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}

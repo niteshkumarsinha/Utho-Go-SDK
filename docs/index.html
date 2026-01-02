@@ -159,204 +159,947 @@ client, _ := utho.NewClient("explicit-key")</code></pre>
 
             <section id="cloudserver">
                 <h1>Cloud Server</h1>
-                <p>Deploy and manage high-performance cloud instances.</p>
+                <p>Deploy and manage high-performance cloud instances with full lifecycle control.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>List()</code> - List all cloud servers</li>
+                    <li><code>Get(id)</code> - Get server details</li>
+                    <li><code>Deploy(params)</code> - Deploy new servers</li>
+                    <li><code>Delete(id)</code> - Destroy a server</li>
+                    <li><code>PowerOn(id)</code> - Start a server</li>
+                    <li><code>PowerOff(id)</code> - Stop a server</li>
+                    <li><code>HardReboot(id)</code> - Reboot a server</li>
+                    <li><code>ResetPassword(id)</code> - Reset root password</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>servers, _ := client.CloudServer.List()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho cloudserver list</code></pre>
+                <pre><code>// List all servers
+servers, err := client.CloudServer.List()
+
+// Get specific server
+server, err := client.CloudServer.Get("server-id")
+
+// Deploy a new server
+params := cloudserver.DeployParams{
+    DCSlug:         "inmumbaizone2",
+    PlanID:         "10045",
+    BillingCycle:   "hourly",
+    Auth:           "password",
+    EnablePublicIP: "1",
+    Image:          "ubuntu-20.04-x64",
+    Cloud: []cloudserver.InstanceConfig{
+        {Hostname: "my-server"},
+    },
+}
+resp, err := client.CloudServer.Deploy(params)
+
+// Power operations
+err = client.CloudServer.PowerOff("server-id")
+err = client.CloudServer.PowerOn("server-id")
+err = client.CloudServer.HardReboot("server-id")
+
+// Delete server
+err = client.CloudServer.Delete("server-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List servers
+utho cloudserver list
+
+# Get server details
+utho cloudserver get &lt;server-id&gt;
+
+# Deploy server
+utho cloudserver deploy --zone inmumbaizone2 --plan 10045 --image ubuntu-20.04-x64 --hostname my-server
+
+# Power operations
+utho cloudserver poweroff &lt;server-id&gt;
+utho cloudserver poweron &lt;server-id&gt;
+utho cloudserver reboot &lt;server-id&gt;
+
+# Delete server
+utho cloudserver delete &lt;server-id&gt;</code></pre>
             </section>
 
             <section id="autoscaling">
                 <h1>Autoscaling</h1>
-                <p>Manage dynamic scaling for your server groups.</p>
+                <p>Automatically scale your server infrastructure based on demand.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>List()</code> - List all autoscaling groups</li>
+                    <li><code>Create(params)</code> - Create a new autoscaling group</li>
+                    <li><code>Update(id, params)</code> - Update group configuration</li>
+                    <li><code>Delete(id)</code> - Delete an autoscaling group</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>groups, _ := client.Autoscaling.List()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho autoscaling list</code></pre>
+                <pre><code>// List autoscaling groups
+groups, err := client.Autoscaling.List()
+
+// Create autoscaling group
+params := autoscaling.CreateParams{
+    Name:    "my-as-group",
+    MinSize: 2,
+    MaxSize: 10,
+    Image:   "ubuntu-20.04-x64",
+    Plan:    "10045",
+    Script:  "#!/bin/bash\necho 'Setup script'",
+}
+err = client.Autoscaling.Create(params)
+
+// Update group
+updateParams := autoscaling.UpdateParams{
+    MinSize: 3,
+    MaxSize: 15,
+}
+err = client.Autoscaling.Update("group-id", updateParams)
+
+// Delete group
+err = client.Autoscaling.Delete("group-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List groups
+utho autoscaling list
+
+# Create group
+utho autoscaling create --name my-group --min 2 --max 10 --image ubuntu-20.04-x64 --plan 10045
+
+# Update group
+utho autoscaling update &lt;group-id&gt; --min 3 --max 15
+
+# Delete group
+utho autoscaling delete &lt;group-id&gt;</code></pre>
             </section>
 
             <section id="backups">
                 <h1>Backups</h1>
-                <p>Manage server backups.</p>
+                <p>Manage automated and manual server backups with restore capabilities.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>List()</code> - List all backups</li>
+                    <li><code>Delete(id)</code> - Delete a backup</li>
+                    <li><code>Restore(backupID, cloudID)</code> - Restore backup to server</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>backups, _ := client.Backups.List()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho backups list</code></pre>
+                <pre><code>// List backups
+backups, err := client.Backups.List()
+
+// Delete backup
+err = client.Backups.Delete("backup-id")
+
+// Restore backup to server
+err = client.Backups.Restore("backup-id", "server-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List backups
+utho backups list
+
+# Delete backup
+utho backups delete &lt;backup-id&gt;
+
+# Restore backup
+utho backups restore &lt;backup-id&gt; --cloudid &lt;server-id&gt;</code></pre>
             </section>
 
             <section id="snapshots">
                 <h1>Snapshots</h1>
-                <p>Manage server snapshots.</p>
+                <p>Create point-in-time snapshots of your cloud servers for backup and cloning.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>List()</code> - List all snapshots</li>
+                    <li><code>Create(params)</code> - Create a new snapshot</li>
+                    <li><code>Delete(cloudID, snapshotID)</code> - Delete a snapshot</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>snaps, _ := client.Snapshots.List()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho snapshots list</code></pre>
+                <pre><code>// List snapshots
+snapshots, err := client.Snapshots.List()
+
+// Create snapshot
+params := snapshots.CreateParams{
+    CloudID: "server-id",
+    Name:    "my-snapshot",
+}
+err = client.Snapshots.Create(params)
+
+// Delete snapshot
+err = client.Snapshots.Delete("server-id", "snapshot-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List snapshots
+utho snapshots list
+
+# Create snapshot
+utho snapshots create --cloudid &lt;server-id&gt; --name my-snapshot
+
+# Delete snapshot
+utho snapshots delete &lt;snapshot-id&gt; --cloudid &lt;server-id&gt;</code></pre>
             </section>
 
             <section id="iso">
                 <h1>ISO Management</h1>
-                <p>Manage custom ISO images.</p>
+                <p>Upload and manage custom ISO images for server deployment.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>List()</code> - List all custom ISOs</li>
+                    <li><code>Create(params)</code> - Upload a new ISO</li>
+                    <li><code>Delete(id)</code> - Delete an ISO</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>isos, _ := client.ISO.List()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho iso list</code></pre>
+                <pre><code>// List ISOs
+isos, err := client.ISO.List()
+
+// Create/Upload ISO
+params := iso.CreateParams{
+    Name:   "my-custom-iso",
+    URL:    "https://example.com/path/to/iso",
+    DCSlug: "inmumbaizone2",
+}
+err = client.ISO.Create(params)
+
+// Delete ISO
+err = client.ISO.Delete("iso-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List ISOs
+utho iso list
+
+# Create ISO
+utho iso create --name my-iso --url https://example.com/iso --zone inmumbaizone2
+
+# Delete ISO
+utho iso delete &lt;iso-id&gt;</code></pre>
             </section>
 
             <section id="vpc">
-                <h1>VPC</h1>
-                <p>Create isolated private networks.</p>
+                <h1>VPC (Virtual Private Cloud)</h1>
+                <p>Create isolated private networks for secure resource communication.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>List()</code> - List all VPCs</li>
+                    <li><code>Create(params)</code> - Create a new VPC</li>
+                    <li><code>Delete(id)</code> - Delete a VPC</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>vpcs, _ := client.VPC.List()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho vpc list</code></pre>
+                <pre><code>// List VPCs
+vpcs, err := client.VPC.List()
+
+// Create VPC
+params := vpc.CreateParams{
+    Name:   "my-vpc",
+    Region: "inmumbaizone2",
+    Range:  "10.0.0.0/16",
+}
+err = client.VPC.Create(params)
+
+// Delete VPC
+err = client.VPC.Delete("vpc-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List VPCs
+utho vpc list
+
+# Create VPC
+utho vpc create --name my-vpc --region inmumbaizone2 --range 10.0.0.0/16
+
+# Delete VPC
+utho vpc delete &lt;vpc-id&gt;</code></pre>
             </section>
 
             <section id="loadbalancer">
                 <h1>Load Balancer</h1>
-                <p>Distribute traffic across instances.</p>
+                <p>Distribute traffic across multiple instances for high availability.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>List()</code> - List all load balancers</li>
+                    <li><code>Create(params)</code> - Create a load balancer</li>
+                    <li><code>Update(id, params)</code> - Update configuration</li>
+                    <li><code>Delete(id)</code> - Delete a load balancer</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>lbs, _ := client.LoadBalancer.List()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho loadbalancer list</code></pre>
+                <pre><code>// List load balancers
+lbs, err := client.LoadBalancer.List()
+
+// Create load balancer
+params := loadbalancer.CreateParams{
+    DCSlug: "inmumbaizone2",
+    Name:   "my-lb",
+    Type:   "http",
+}
+resp, err := client.LoadBalancer.Create(params)
+
+// Update load balancer
+updateParams := loadbalancer.UpdateParams{
+    Name: "updated-lb-name",
+}
+err = client.LoadBalancer.Update("lb-id", updateParams)
+
+// Delete load balancer
+err = client.LoadBalancer.Delete("lb-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List load balancers
+utho loadbalancer list
+
+# Create load balancer
+utho loadbalancer create --name my-lb --zone inmumbaizone2 --type http
+
+# Update load balancer
+utho loadbalancer update &lt;lb-id&gt; --name new-name
+
+# Delete load balancer
+utho loadbalancer delete &lt;lb-id&gt;</code></pre>
             </section>
 
             <section id="networking">
                 <h1>DNS & Firewall</h1>
-                <p>Manage DNS zones and security rules.</p>
+                <p>Manage DNS domains and firewall rules for network security.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>ListDomains()</code> - List all DNS domains</li>
+                    <li><code>CreateDomain(params)</code> - Add a new domain</li>
+                    <li><code>DeleteDomain(domain)</code> - Remove a domain</li>
+                    <li><code>ListFirewalls()</code> - List all firewalls</li>
+                    <li><code>CreateFirewall(params)</code> - Create a firewall</li>
+                    <li><code>DeleteFirewall(id)</code> - Delete a firewall</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>domains, _ := client.Networking.ListDomains()
-firewalls, _ := client.Networking.ListFirewalls()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho networking domains
-utho networking firewalls</code></pre>
+                <pre><code>// DNS Management
+domains, err := client.Networking.ListDomains()
+
+createParams := networking.CreateDomainParams{
+    Domain: "example.com",
+}
+err = client.Networking.CreateDomain(createParams)
+
+err = client.Networking.DeleteDomain("example.com")
+
+// Firewall Management
+firewalls, err := client.Networking.ListFirewalls()
+
+fwParams := networking.CreateFirewallParams{
+    Name: "my-firewall",
+}
+err = client.Networking.CreateFirewall(fwParams)
+
+err = client.Networking.DeleteFirewall("firewall-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># DNS commands
+utho networking list-domains
+utho networking create-domain example.com
+utho networking delete-domain example.com
+
+# Firewall commands
+utho networking list-firewalls
+utho networking create-firewall my-firewall
+utho networking delete-firewall &lt;firewall-id&gt;</code></pre>
             </section>
 
             <section id="vpn">
                 <h1>VPN / IPsec</h1>
-                <p>Site-to-site connectivity.</p>
+                <p>Secure site-to-site and remote access VPN connectivity.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>List()</code> - List all VPN instances</li>
+                    <li><code>Create(params)</code> - Deploy a new VPN</li>
+                    <li><code>Delete(id)</code> - Delete a VPN instance</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>vpns, _ := client.VPN.List()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho vpn list</code></pre>
+                <pre><code>// List VPNs
+vpns, err := client.VPN.List()
+
+// Create VPN
+params := vpn.CreateParams{
+    Name:   "my-vpn",
+    DCSlug: "inmumbaizone2",
+    Plan:   "10045",
+}
+err = client.VPN.Create(params)
+
+// Delete VPN
+err = client.VPN.Delete("vpn-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List VPNs
+utho vpn list
+
+# Create VPN
+utho vpn create --name my-vpn --zone inmumbaizone2 --plan 10045
+
+# Delete VPN
+utho vpn delete &lt;vpn-id&gt;</code></pre>
             </section>
 
             <section id="waf">
-                <h1>WAF</h1>
-                <p>Web Application Firewall management.</p>
+                <h1>WAF (Web Application Firewall)</h1>
+                <p>Protect web applications from common exploits and attacks.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>List()</code> - List all WAF instances</li>
+                    <li><code>Create(params)</code> - Create a WAF instance</li>
+                    <li><code>Attach(wafID, params)</code> - Attach to resource</li>
+                    <li><code>Detach(wafID)</code> - Detach from resource</li>
+                    <li><code>Delete(id)</code> - Delete a WAF instance</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>wafs, _ := client.WAF.List()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho waf list</code></pre>
+                <pre><code>// List WAFs
+wafs, err := client.WAF.List()
+
+// Create WAF
+params := waf.CreateParams{
+    Name:   "my-waf",
+    DCSlug: "inmumbaizone2",
+}
+err = client.WAF.Create(params)
+
+// Attach to load balancer
+attachParams := waf.AttachParams{
+    ResourceID:   "lb-id",
+    ResourceType: "loadbalancer",
+}
+err = client.WAF.Attach("waf-id", attachParams)
+
+// Detach
+err = client.WAF.Detach("waf-id")
+
+// Delete
+err = client.WAF.Delete("waf-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List WAFs
+utho waf list
+
+# Create WAF
+utho waf create --name my-waf --zone inmumbaizone2
+
+# Attach WAF
+utho waf attach &lt;waf-id&gt; --resource-id &lt;lb-id&gt;
+
+# Detach WAF
+utho waf detach &lt;waf-id&gt;
+
+# Delete WAF
+utho waf delete &lt;waf-id&gt;</code></pre>
             </section>
 
             <section id="storage">
                 <h1>Elastic Block Storage (EBS)</h1>
-                <p>Manage network-attached block volumes.</p>
+                <p>Create and manage network-attached block volumes for your cloud servers.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>List()</code> - List all EBS volumes</li>
+                    <li><code>Create(params)</code> - Create a new volume</li>
+                    <li><code>Delete(id)</code> - Delete a volume</li>
+                    <li><code>Attach(ebsID, params)</code> - Attach to server</li>
+                    <li><code>Detach(ebsID)</code> - Detach from server</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>ebs, _ := client.Storage.List()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho storage list</code></pre>
+                <pre><code>// List volumes
+volumes, err := client.Storage.List()
+
+// Create volume
+params := storage.CreateParams{
+    Name:     "my-volume",
+    DCSlug:   "inmumbaizone2",
+    Size:     "50",
+    DiskType: "ssd",
+}
+resp, err := client.Storage.Create(params)
+
+// Attach to server
+attachParams := storage.AttachParams{
+    ServerID: "server-id",
+}
+err = client.Storage.Attach("ebs-id", attachParams)
+
+// Detach
+err = client.Storage.Detach("ebs-id")
+
+// Delete
+err = client.Storage.Delete("ebs-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List volumes
+utho storage list
+
+# Create volume
+utho storage create --name my-volume --zone inmumbaizone2 --size 50 --type ssd
+
+# Attach volume
+utho storage attach &lt;ebs-id&gt; --cloudid &lt;server-id&gt;
+
+# Detach volume
+utho storage detach &lt;ebs-id&gt;
+
+# Delete volume
+utho storage delete &lt;ebs-id&gt;</code></pre>
             </section>
 
             <section id="objectstorage">
                 <h1>Object Storage</h1>
-                <p>S3-compatible bucket storage.</p>
+                <p>S3-compatible object storage with bucket and access key management.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>ListBuckets(dcslug)</code> - List buckets in a datacenter</li>
+                    <li><code>CreateBucket(params)</code> - Create a new bucket</li>
+                    <li><code>DeleteBucket(dcslug, name)</code> - Delete a bucket</li>
+                    <li><code>ListAccessKeys(dcslug)</code> - List access keys</li>
+                    <li><code>CreateAccessKey(dcslug)</code> - Generate new access key</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>buckets, _ := client.ObjectStorage.ListBuckets("dcslug")</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho objectstorage list <dcslug></code></pre>
+                <pre><code>// List buckets
+buckets, err := client.ObjectStorage.ListBuckets("inmumbaizone2")
+
+// Create bucket
+params := objectstorage.CreateBucketParams{
+    Name:    "my-bucket",
+    DCSlug:  "inmumbaizone2",
+    Size:    "250GB",
+    Billing: "monthly",
+}
+resp, err := client.ObjectStorage.CreateBucket(params)
+
+// Delete bucket
+err = client.ObjectStorage.DeleteBucket("inmumbaizone2", "my-bucket")
+
+// List access keys
+keys, err := client.ObjectStorage.ListAccessKeys("inmumbaizone2")
+
+// Create access key
+key, err := client.ObjectStorage.CreateAccessKey("inmumbaizone2")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List buckets
+utho objectstorage list &lt;dcslug&gt;
+
+# Create bucket
+utho objectstorage create-bucket &lt;dcslug&gt; --name my-bucket --size 250GB
+
+# Delete bucket
+utho objectstorage delete-bucket &lt;dcslug&gt; &lt;bucket-name&gt;
+
+# List access keys
+utho objectstorage list-keys &lt;dcslug&gt;
+
+# Create access key
+utho objectstorage create-key &lt;dcslug&gt;</code></pre>
             </section>
 
             <section id="kubernetes">
                 <h1>Kubernetes</h1>
-                <p>Managed K8s clusters.</p>
+                <p>Deploy and manage fully managed Kubernetes clusters.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>List()</code> - List all K8s clusters</li>
+                    <li><code>Get(id)</code> - Get cluster details</li>
+                    <li><code>Create(params)</code> - Create a new cluster</li>
+                    <li><code>Delete(id)</code> - Delete a cluster</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>clusters, _ := client.Kubernetes.List()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho kubernetes list</code></pre>
+                <pre><code>// List clusters
+clusters, err := client.Kubernetes.List()
+
+// Get cluster details
+cluster, err := client.Kubernetes.Get("cluster-id")
+
+// Create cluster
+params := kubernetes.CreateParams{
+    ClusterLabel: "my-k8s-cluster",
+    DCSlug:       "inmumbaizone2",
+    NodePools: []kubernetes.NodePool{
+        {
+            Label: "worker-pool",
+            Count: 3,
+            Size:  "10045",
+        },
+    },
+}
+err = client.Kubernetes.Create(params)
+
+// Delete cluster
+err = client.Kubernetes.Delete("cluster-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List clusters
+utho kubernetes list
+
+# Get cluster
+utho kubernetes get &lt;cluster-id&gt;
+
+# Create cluster
+utho kubernetes create --name my-cluster --zone inmumbaizone2 --nodes 3 --plan 10045
+
+# Delete cluster
+utho kubernetes delete &lt;cluster-id&gt;</code></pre>
             </section>
 
             <section id="database">
                 <h1>Databases</h1>
-                <p>Managed MySQL, PostgreSQL, and Redis.</p>
+                <p>Fully managed MySQL, PostgreSQL, and Redis database clusters.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>List()</code> - List all database clusters</li>
+                    <li><code>Get(id)</code> - Get cluster details</li>
+                    <li><code>Create(params)</code> - Deploy a new database</li>
+                    <li><code>Delete(id)</code> - Delete a database cluster</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>dbs, _ := client.Database.List()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho database list</code></pre>
+                <pre><code>// List databases
+databases, err := client.Database.List()
+
+// Get database details
+db, err := client.Database.Get("db-id")
+
+// Create database
+params := database.CreateParams{
+    Name:     "my-db",
+    Engine:   "mysql",
+    Version:  "8.0",
+    DCSlug:   "inmumbaizone2",
+    PlanID:   "10045",
+    Replicas: 2,
+}
+err = client.Database.Create(params)
+
+// Delete database
+err = client.Database.Delete("db-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List databases
+utho database list
+
+# Get database
+utho database get &lt;db-id&gt;
+
+# Create database
+utho database create --name my-db --engine mysql --version 8.0 --zone inmumbaizone2
+
+# Delete database
+utho database delete &lt;db-id&gt;</code></pre>
             </section>
 
             <section id="sqs">
                 <h1>Simple Queue Service (SQS)</h1>
-                <p>Managed message queuing.</p>
+                <p>Managed message queuing for decoupled application architectures.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>List()</code> - List all SQS instances</li>
+                    <li><code>Create(params)</code> - Create a new queue</li>
+                    <li><code>Delete(id)</code> - Delete a queue</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>queues, _ := client.SQS.List()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho sqs list</code></pre>
+                <pre><code>// List queues
+queues, err := client.SQS.List()
+
+// Create queue
+params := sqs.CreateParams{
+    Name:   "my-queue",
+    DCSlug: "inmumbaizone2",
+}
+err = client.SQS.Create(params)
+
+// Delete queue
+err = client.SQS.Delete("queue-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List queues
+utho sqs list
+
+# Create queue
+utho sqs create --name my-queue --zone inmumbaizone2
+
+# Delete queue
+utho sqs delete &lt;queue-id&gt;</code></pre>
             </section>
 
             <section id="registry">
                 <h1>Container Registry</h1>
-                <p>Private Docker registries.</p>
+                <p>Private Docker container registries for your applications.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>List()</code> - List all registries</li>
+                    <li><code>Create(params)</code> - Create a new registry</li>
+                    <li><code>Delete(id)</code> - Delete a registry</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>registries, _ := client.Registry.List()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho registry list</code></pre>
+                <pre><code>// List registries
+registries, err := client.Registry.List()
+
+// Create registry
+params := registry.CreateParams{
+    Name:   "my-registry",
+    DCSlug: "inmumbaizone2",
+}
+err = client.Registry.Create(params)
+
+// Delete registry
+err = client.Registry.Delete("registry-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List registries
+utho registry list
+
+# Create registry
+utho registry create --name my-registry --zone inmumbaizone2
+
+# Delete registry
+utho registry delete &lt;registry-id&gt;</code></pre>
             </section>
 
             <section id="stacks">
-                <h1>Stacks</h1>
-                <p>Automated infrastructure templates.</p>
+                <h1>Stacks (Automation Templates)</h1>
+                <p>Reusable infrastructure automation templates for consistent deployments.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>List()</code> - List all stacks</li>
+                    <li><code>Create(params)</code> - Create a new stack</li>
+                    <li><code>Update(id, params)</code> - Update a stack</li>
+                    <li><code>Delete(id)</code> - Delete a stack</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>stacks, _ := client.Stacks.List()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho stacks list</code></pre>
+                <pre><code>// List stacks
+stacks, err := client.Stacks.List()
+
+// Create stack
+params := stacks.CreateParams{
+    Title:       "My Stack",
+    Description: "Automated setup",
+    Images:      "ubuntu-20.04-x64",
+    Script:      "#!/bin/bash\napt-get update",
+    Status:      "1",
+}
+err = client.Stacks.Create(params)
+
+// Update stack
+updateParams := stacks.UpdateParams{
+    Title: "Updated Stack",
+}
+err = client.Stacks.Update("stack-id", updateParams)
+
+// Delete stack
+err = client.Stacks.Delete("stack-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List stacks
+utho stacks list
+
+# Create stack
+utho stacks create --title "My Stack" --images ubuntu-20.04-x64
+
+# Update stack
+utho stacks update &lt;stack-id&gt; --title "New Title"
+
+# Delete stack
+utho stacks delete &lt;stack-id&gt;</code></pre>
             </section>
 
             <section id="transfer">
                 <h1>Resource Transfer</h1>
-                <p>Transfer resources between accounts.</p>
+                <p>Transfer cloud resources between Utho accounts securely.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>Initiate(resourceType, resourceID)</code> - Start a transfer</li>
+                    <li><code>Receive(params)</code> - Accept a transfer</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>client.Transfer.Initiate("type", "id")</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho transfer initiate <type> <id></code></pre>
+                <pre><code>// Initiate transfer (sender)
+err := client.Transfer.Initiate("cloudserver", "server-id")
+
+// Receive transfer (recipient)
+params := transfer.ReceiveParams{
+    ID:    "resource-id",
+    Token: "transfer-token",
+    Type:  "cloudserver",
+}
+err = client.Transfer.Receive(params)</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># Initiate transfer
+utho transfer initiate cloudserver &lt;server-id&gt;
+
+# Receive transfer
+utho transfer receive cloudserver &lt;resource-id&gt; &lt;token&gt;</code></pre>
             </section>
 
             <section id="account">
-                <h1>Account</h1>
-                <p>Account details and balance.</p>
+                <h1>Account Management</h1>
+                <p>View account details, balance, and billing information.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>GetInfo()</code> - Get account information</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>acc, _ := client.Account.GetInfo()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho account info</code></pre>
+                <pre><code>// Get account info
+info, err := client.Account.GetInfo()
+
+fmt.Printf("Email: %s\n", info.Email)
+fmt.Printf("Balance: %s %s\n", info.Balance, info.Currency)
+fmt.Printf("Status: %s\n", info.Status)</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># Get account info
+utho account info</code></pre>
             </section>
 
             <section id="security">
                 <h1>SSH & API Keys</h1>
-                <p>Manage access credentials.</p>
+                <p>Manage SSH keys for server access and API keys for programmatic access.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>ListSSHKeys()</code> - List all SSH keys</li>
+                    <li><code>ImportSSHKey(params)</code> - Import an SSH key</li>
+                    <li><code>DeleteSSHKey(id)</code> - Delete an SSH key</li>
+                    <li><code>ListAPIKeys()</code> - List all API keys</li>
+                    <li><code>GenerateAPIKey(params)</code> - Generate new API key</li>
+                    <li><code>DeleteAPIKey(id)</code> - Delete an API key</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>keys, _ := client.Security.ListSSHKeys()
-apiKeys, _ := client.Security.ListAPIKeys()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho security sshkeys
-utho security apikeys</code></pre>
+                <pre><code>// SSH Keys
+sshKeys, err := client.Security.ListSSHKeys()
+
+importParams := security.ImportSSHKeyParams{
+    Name: "my-key",
+    Key:  "ssh-rsa AAAAB3...",
+}
+err = client.Security.ImportSSHKey(importParams)
+
+err = client.Security.DeleteSSHKey("key-id")
+
+// API Keys
+apiKeys, err := client.Security.ListAPIKeys()
+
+genParams := security.GenerateAPIKeyParams{
+    Label: "my-api-key",
+}
+key, err := client.Security.GenerateAPIKey(genParams)
+
+err = client.Security.DeleteAPIKey("key-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># SSH Keys
+utho security list-sshkeys
+utho security import-sshkey --name my-key --key "ssh-rsa..."
+utho security delete-sshkey &lt;key-id&gt;
+
+# API Keys
+utho security list-apikeys
+utho security generate-apikey --label my-key
+utho security delete-apikey &lt;key-id&gt;</code></pre>
             </section>
 
             <section id="ssl">
                 <h1>SSL Certificates</h1>
-                <p>HTTPS certificates management.</p>
+                <p>Upload and manage SSL/TLS certificates for secure HTTPS connections.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>List()</code> - List all SSL certificates</li>
+                    <li><code>Create(params)</code> - Upload a certificate</li>
+                    <li><code>Delete(id)</code> - Delete a certificate</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>certs, _ := client.SSL.List()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho ssl list</code></pre>
+                <pre><code>// List certificates
+certs, err := client.SSL.List()
+
+// Upload certificate
+params := ssl.CreateParams{
+    Name:        "my-cert",
+    Certificate: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+    PrivateKey:  "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----",
+    Chain:       "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+}
+err = client.SSL.Create(params)
+
+// Delete certificate
+err = client.SSL.Delete("cert-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List certificates
+utho ssl list
+
+# Upload certificate
+utho ssl create --name my-cert --cert cert.pem --key key.pem --chain chain.pem
+
+# Delete certificate
+utho ssl delete &lt;cert-id&gt;</code></pre>
             </section>
 
             <section id="monitoring">
-                <h1>Monitoring</h1>
-                <p>Alert policies and monitoring.</p>
+                <h1>Monitoring & Alerts</h1>
+                <p>Set up alert policies to monitor resource health and performance.</p>
+
+                <h2>Available Operations</h2>
+                <ul>
+                    <li><code>ListAlertPolicies()</code> - List all alert policies</li>
+                    <li><code>CreateAlertPolicy(params)</code> - Create a new policy</li>
+                    <li><code>DeleteAlertPolicy(id)</code> - Delete a policy</li>
+                </ul>
+
                 <h3>SDK Usage</h3>
-                <pre><code>policies, _ := client.Monitoring.ListAlertPolicies()</code></pre>
-                <h3>CLI Command</h3>
-                <pre><code>utho monitoring alerts</code></pre>
+                <pre><code>// List alert policies
+policies, err := client.Monitoring.ListAlertPolicies()
+
+// Create alert policy
+params := monitoring.CreateAlertPolicyParams{
+    Label:        "high-cpu-alert",
+    ResourceType: "cloudserver",
+    Contacts:     []string{"contact-id"},
+}
+params.Thresholds.CPU = 80
+params.Thresholds.RAM = 90
+
+err = client.Monitoring.CreateAlertPolicy(params)
+
+// Delete policy
+err = client.Monitoring.DeleteAlertPolicy("policy-id")</code></pre>
+
+                <h3>CLI Commands</h3>
+                <pre><code># List alert policies
+utho monitoring alerts
+
+# Create alert policy
+utho monitoring create-alert --label high-cpu --cpu 80 --ram 90
+
+# Delete alert policy
+utho monitoring delete-alert &lt;policy-id&gt;</code></pre>
             </section>
 
         </main>

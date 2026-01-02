@@ -99,3 +99,59 @@ func (s *SecurityService) ListAPIKeys() ([]APIKey, error) {
 	}
 	return resp.Data, nil
 }
+
+// DeleteSSHKey deletes an SSH key.
+func (s *SecurityService) DeleteSSHKey(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/key/%s/delete", id)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// GenerateAPIKeyParams represents the parameters for generating an API key.
+type GenerateAPIKeyParams struct {
+	Label string `json:"label"`
+}
+
+// GenerateAPIKey generates a new API key.
+func (s *SecurityService) GenerateAPIKey(params GenerateAPIKeyParams) (*APIKey, error) {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+		Data    APIKey `json:"data"`
+	}
+	err := s.client.Request(http.MethodPost, "/api/generate", params, &resp)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Status != "success" {
+		return nil, fmt.Errorf("API error: %s", resp.Message)
+	}
+	return &resp.Data, nil
+}
+
+// DeleteAPIKey deletes an API key.
+func (s *SecurityService) DeleteAPIKey(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/api/%s/delete", id)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}

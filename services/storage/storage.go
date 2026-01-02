@@ -77,3 +77,60 @@ func (s *StorageService) Create(params CreateParams) (*CreateResponse, error) {
 	}
 	return &resp, nil
 }
+
+// Delete destroys an EBS volume.
+func (s *StorageService) Delete(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/ebs/%s/destroy", id)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// AttachParams represents the parameters for attaching an EBS volume.
+type AttachParams struct {
+	ServerID string `json:"serverid"`
+}
+
+// Attach attaches an EBS volume to a cloud server.
+func (s *StorageService) Attach(ebsID string, params AttachParams) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/ebs/%s/attach", ebsID)
+	err := s.client.Request(http.MethodPost, url, params, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// Detach detaches an EBS volume from its server.
+func (s *StorageService) Detach(ebsID string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/ebs/%s/detach", ebsID)
+	// Using POST for state change actions to be consistent with other action endpoints (e.g. Cloud Server power actions).
+	err := s.client.Request(http.MethodPost, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}

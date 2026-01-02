@@ -71,3 +71,81 @@ func (s *NetworkingService) ListFirewalls() ([]Firewall, error) {
 	}
 	return resp.Data, nil
 }
+
+// CreateDomainParams represents the parameters for creating a domain.
+type CreateDomainParams struct {
+	Domain string `json:"domain"`
+}
+
+// CreateDomain adds a new domain to Utho DNS.
+func (s *NetworkingService) CreateDomain(params CreateDomainParams) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	err := s.client.Request(http.MethodPost, "/dns/adddomain", params, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// DeleteDomain removes a domain from Utho DNS.
+func (s *NetworkingService) DeleteDomain(domain string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/dns/%s/delete", domain)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// CreateFirewallParams represents the parameters for creating a firewall.
+type CreateFirewallParams struct {
+	Name string `json:"name"`
+	// Add other necessary fields based on API docs if needed, though 'name' is often minimal required.
+	// Documentation says POST /firewall/create.
+}
+
+// CreateFirewall creates a new firewall.
+func (s *NetworkingService) CreateFirewall(params CreateFirewallParams) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	err := s.client.Request(http.MethodPost, "/firewall/create", params, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// DeleteFirewall destroys a firewall by its ID.
+func (s *NetworkingService) DeleteFirewall(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/firewall/%s/destroy", id)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}

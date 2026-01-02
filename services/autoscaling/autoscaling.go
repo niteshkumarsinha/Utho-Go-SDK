@@ -48,3 +48,69 @@ func (s *AutoscalingService) List() ([]ASGroup, error) {
 	}
 	return resp.Data, nil
 }
+
+// CreateParams represents the parameters for creating an autoscaling group.
+type CreateParams struct {
+	Name    string `json:"name"`
+	MinSize int    `json:"min_size"`
+	MaxSize int    `json:"max_size"`
+	Image   string `json:"image"`
+	Plan    string `json:"plan"`
+	Script  string `json:"script"`
+}
+
+// Create creates a new autoscaling group.
+func (s *AutoscalingService) Create(params CreateParams) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	err := s.client.Request(http.MethodPost, "/autoscaling/create", params, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// Delete destroys an autoscaling group.
+func (s *AutoscalingService) Delete(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/autoscaling/%s/delete", id)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
+
+// UpdateParams represents parameters for updating an autoscaling group.
+type UpdateParams struct {
+	MinSize int `json:"min_size,omitempty"`
+	MaxSize int `json:"max_size,omitempty"`
+}
+
+// Update updates an autoscaling group configuration.
+func (s *AutoscalingService) Update(id string, params UpdateParams) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/autoscaling/%s/update", id)
+	err := s.client.Request(http.MethodPut, url, params, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}

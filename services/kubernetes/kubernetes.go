@@ -84,3 +84,38 @@ func (s *KubernetesService) Create(params CreateParams) (*CreateResponse, error)
 	}
 	return &resp, nil
 }
+
+// Get retrieves a single Kubernetes cluster by its ID.
+func (s *KubernetesService) Get(id string) (*Cluster, error) {
+	var resp struct {
+		Status  string  `json:"status"`
+		Message string  `json:"message"`
+		Data    Cluster `json:"data"`
+	}
+	url := fmt.Sprintf("/kubernetes/%s", id)
+	err := s.client.Request(http.MethodGet, url, nil, &resp)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Status != "success" {
+		return nil, fmt.Errorf("API error: %s", resp.Message)
+	}
+	return &resp.Data, nil
+}
+
+// Delete destroys a Kubernetes cluster.
+func (s *KubernetesService) Delete(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/kubernetes/%s/destroy", id)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}

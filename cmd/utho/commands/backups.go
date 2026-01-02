@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/niteshkumarsinha/utho-sdk-go"
+	"github.com/niteshkumarsinha/utho-sdk-go/services/backups"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -41,7 +42,54 @@ var listBackupsCmd = &cobra.Command{
 	},
 }
 
+var deleteBackupCmd = &cobra.Command{
+	Use:   "delete [id]",
+	Short: "Delete a backup",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		apiKey := viper.GetString("apikey")
+		if apiKey == "" {
+			fmt.Println("Error: API Key not configured.")
+			return
+		}
+		client, _ := utho.NewClient(apiKey)
+		err := client.Backups.Delete(args[0])
+		if err != nil {
+			fmt.Printf("Error deleting backup: %v\n", err)
+			return
+		}
+		fmt.Println("Backup deleted successfully.")
+	},
+}
+
+var restoreBackupCmd = &cobra.Command{
+	Use:   "restore [id]",
+	Short: "Restore a backup to a server",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		apiKey := viper.GetString("apikey")
+		if apiKey == "" {
+			fmt.Println("Error: API Key not configured.")
+			return
+		}
+		cloudID, _ := cmd.Flags().GetString("cloudid")
+
+		client, _ := utho.NewClient(apiKey)
+		err := client.Backups.Restore(args[0], backups.RestoreParams{CloudID: cloudID})
+		if err != nil {
+			fmt.Printf("Error restoring backup: %v\n", err)
+			return
+		}
+		fmt.Println("Backup restoration initiated successfully.")
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(backupsCmd)
 	backupsCmd.AddCommand(listBackupsCmd)
+	backupsCmd.AddCommand(deleteBackupCmd)
+	backupsCmd.AddCommand(restoreBackupCmd)
+
+	restoreBackupCmd.Flags().String("cloudid", "", "Target Cloud Server ID (required)")
+	restoreBackupCmd.MarkFlagRequired("cloudid")
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/niteshkumarsinha/utho-sdk-go"
+	"github.com/niteshkumarsinha/utho-sdk-go/services/sqs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -41,7 +42,62 @@ var listSqsCmd = &cobra.Command{
 	},
 }
 
+var createSqsCmd = &cobra.Command{
+	Use:   "create",
+	Short: "Create a new SQS instance",
+	Run: func(cmd *cobra.Command, args []string) {
+		apiKey := viper.GetString("apikey")
+		if apiKey == "" {
+			fmt.Println("Error: API Key not configured.")
+			return
+		}
+
+		name, _ := cmd.Flags().GetString("name")
+		zone, _ := cmd.Flags().GetString("zone")
+
+		params := sqs.CreateParams{
+			Name:   name,
+			DCSlug: zone,
+		}
+
+		client, _ := utho.NewClient(apiKey)
+		err := client.SQS.Create(params)
+		if err != nil {
+			fmt.Printf("Error creating SQS instance: %v\n", err)
+			return
+		}
+		fmt.Println("SQS instance created successfully.")
+	},
+}
+
+var deleteSqsCmd = &cobra.Command{
+	Use:   "delete [id]",
+	Short: "Delete an SQS instance",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		apiKey := viper.GetString("apikey")
+		if apiKey == "" {
+			fmt.Println("Error: API Key not configured.")
+			return
+		}
+		client, _ := utho.NewClient(apiKey)
+		err := client.SQS.Delete(args[0])
+		if err != nil {
+			fmt.Printf("Error deleting SQS instance: %v\n", err)
+			return
+		}
+		fmt.Println("SQS instance deleted successfully.")
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(sqsCmd)
 	sqsCmd.AddCommand(listSqsCmd)
+	sqsCmd.AddCommand(createSqsCmd)
+	sqsCmd.AddCommand(deleteSqsCmd)
+
+	createSqsCmd.Flags().String("name", "", "SQS Name (required)")
+	createSqsCmd.Flags().String("zone", "", "Zone/DC Slug (required)")
+	createSqsCmd.MarkFlagRequired("name")
+	createSqsCmd.MarkFlagRequired("zone")
 }

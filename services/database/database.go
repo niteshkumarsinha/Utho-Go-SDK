@@ -78,3 +78,38 @@ func (s *DatabaseService) Create(params CreateParams) (*CreateResponse, error) {
 	}
 	return &resp, nil
 }
+
+// Get retrieves details about a single database cluster by its ID.
+func (s *DatabaseService) Get(id string) (*DBCluster, error) {
+	var resp struct {
+		Status  string    `json:"status"`
+		Message string    `json:"message"`
+		Data    DBCluster `json:"data"`
+	}
+	url := fmt.Sprintf("/databases/%s", id)
+	err := s.client.Request(http.MethodGet, url, nil, &resp)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Status != "success" {
+		return nil, fmt.Errorf("API error: %s", resp.Message)
+	}
+	return &resp.Data, nil
+}
+
+// Delete destroys a database cluster by its ID.
+func (s *DatabaseService) Delete(id string) error {
+	var resp struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+	url := fmt.Sprintf("/databases/%s", id)
+	err := s.client.Request(http.MethodDelete, url, nil, &resp)
+	if err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return fmt.Errorf("API error: %s", resp.Message)
+	}
+	return nil
+}
