@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // IsoService handles communication with the ISO related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *IsoService {
 		client: client,
 	}
 }
+
+// NewClient creates a new IsoService with the provided API key.
+func NewClient(apiKey string) (*IsoService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // ISO represents an ISO image.
 type ISO struct {

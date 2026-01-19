@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // BackupsService handles communication with the backup related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *BackupsService {
 		client: client,
 	}
 }
+
+// NewClient creates a new BackupsService with the provided API key.
+func NewClient(apiKey string) (*BackupsService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // Backup represents a Utho cloud server backup.
 type Backup struct {

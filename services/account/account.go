@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // AccountService handles communication with the account related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *AccountService {
 		client: client,
 	}
 }
+
+// NewClient creates a new AccountService with the provided API key.
+func NewClient(apiKey string) (*AccountService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // AccountInfo represents Utho account information.
 type AccountInfo struct {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // StorageService handles communication with the elastic block storage related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *StorageService {
 		client: client,
 	}
 }
+
+// NewClient creates a new StorageService with the provided API key.
+func NewClient(apiKey string) (*StorageService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // EBS represents an Elastic Block Storage volume.
 type EBS struct {

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/niteshkumarsinha/utho-sdk-go"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 	"github.com/niteshkumarsinha/utho-sdk-go/services/account"
 	"github.com/niteshkumarsinha/utho-sdk-go/services/autoscaling"
 	"github.com/niteshkumarsinha/utho-sdk-go/services/backups"
@@ -42,12 +43,12 @@ func TestAccountGetInfo(t *testing.T) {
 	defer server.Close()
 
 	// Initialize client with mock server URL
-	client, _ := utho.NewClientWithConfig(utho.Config{
+	uClient, _ := utho.NewClientWithConfig(uClient.Config{
 		APIKey:  "test-api-key",
 		BaseURL: server.URL,
 	})
 
-	info, err := client.Account.GetInfo()
+	info, err := uClient.Account.GetInfo()
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -86,8 +87,8 @@ func TestCloudServerGet(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
-	instance, err := client.CloudServer.Get("123")
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
+	instance, err := uClient.CloudServer.Get("123")
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -123,8 +124,8 @@ func TestDatabaseGet(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
-	db, err := client.Database.Get("456")
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
+	db, err := uClient.Database.Get("456")
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -152,8 +153,8 @@ func TestVPCDelete(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
-	err := client.VPC.Delete("789")
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
+	err := uClient.VPC.Delete("789")
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -179,16 +180,16 @@ func TestNetworkingDomain(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
 
 	// Test Create
-	err := client.Networking.CreateDomain(networking.CreateDomainParams{Domain: "test.com"})
+	err := uClient.Networking.CreateDomain(networking.CreateDomainParams{Domain: "test.com"})
 	if err != nil {
 		t.Fatalf("CreateDomain failed: %v", err)
 	}
 
 	// Test Delete
-	err = client.Networking.DeleteDomain("test.com")
+	err = uClient.Networking.DeleteDomain("test.com")
 	if err != nil {
 		t.Fatalf("DeleteDomain failed: %v", err)
 	}
@@ -207,8 +208,8 @@ func TestObjectStorageBucketDelete(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
-	err := client.ObjectStorage.DeleteBucket("my-dc", "my-bucket")
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
+	err := uClient.ObjectStorage.DeleteBucket("my-dc", "my-bucket")
 	if err != nil {
 		t.Fatalf("DeleteBucket failed: %v", err)
 	}
@@ -227,8 +228,8 @@ func TestLoadBalancerUpdate(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
-	err := client.LoadBalancer.Update("lb-123", loadbalancer.UpdateParams{Name: "new-name"})
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
+	err := uClient.LoadBalancer.Update("lb-123", loadbalancer.UpdateParams{Name: "new-name"})
 	if err != nil {
 		t.Fatalf("Update failed: %v", err)
 	}
@@ -247,8 +248,8 @@ func TestSnapshotDelete(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
-	err := client.Snapshots.Delete("c-123", "s-456")
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
+	err := uClient.Snapshots.Delete("c-123", "s-456")
 	if err != nil {
 		t.Fatalf("Delete failed: %v", err)
 	}
@@ -275,10 +276,10 @@ func TestKubernetesLifecycle(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
 
 	// Test Get
-	cluster, err := client.Kubernetes.Get("k8s-123")
+	cluster, err := uClient.Kubernetes.Get("k8s-123")
 	if err != nil {
 		t.Fatalf("Get failed: %v", err)
 	}
@@ -287,7 +288,7 @@ func TestKubernetesLifecycle(t *testing.T) {
 	}
 
 	// Test Delete
-	err = client.Kubernetes.Delete("k8s-123")
+	err = uClient.Kubernetes.Delete("k8s-123")
 	if err != nil {
 		t.Fatalf("Delete failed: %v", err)
 	}
@@ -320,22 +321,22 @@ func TestStorageLifecycle(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
 
 	// Test Attach
-	err := client.Storage.Attach("vol-123", storage.AttachParams{ServerID: "srv-123"})
+	err := uClient.Storage.Attach("vol-123", storage.AttachParams{ServerID: "srv-123"})
 	if err != nil {
 		t.Fatalf("Attach failed: %v", err)
 	}
 
 	// Test Detach
-	err = client.Storage.Detach("vol-123")
+	err = uClient.Storage.Detach("vol-123")
 	if err != nil {
 		t.Fatalf("Detach failed: %v", err)
 	}
 
 	// Test Delete
-	err = client.Storage.Delete("vol-123")
+	err = uClient.Storage.Delete("vol-123")
 	if err != nil {
 		t.Fatalf("Delete failed: %v", err)
 	}
@@ -354,8 +355,8 @@ func TestSecurityLifecycle(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
-	err := client.Security.DeleteSSHKey("key-123")
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
+	err := uClient.Security.DeleteSSHKey("key-123")
 	if err != nil {
 		t.Fatalf("DeleteSSHKey failed: %v", err)
 	}
@@ -381,16 +382,16 @@ func TestAutoscalingLifecycle(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
 
 	// Test Create
-	err := client.Autoscaling.Create(autoscaling.CreateParams{Name: "test-asg"})
+	err := uClient.Autoscaling.Create(autoscaling.CreateParams{Name: "test-asg"})
 	if err != nil {
 		t.Fatalf("Create failed: %v", err)
 	}
 
 	// Test Delete
-	err = client.Autoscaling.Delete("asg-123")
+	err = uClient.Autoscaling.Delete("asg-123")
 	if err != nil {
 		t.Fatalf("Delete failed: %v", err)
 	}
@@ -409,8 +410,8 @@ func TestMonitoringLifecycle(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
-	err := client.Monitoring.DeleteAlertPolicy("pol-123")
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
+	err := uClient.Monitoring.DeleteAlertPolicy("pol-123")
 	if err != nil {
 		t.Fatalf("DeleteAlertPolicy failed: %v", err)
 	}
@@ -429,8 +430,8 @@ func TestRegistryLifecycle(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
-	err := client.Registry.Delete("reg-123")
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
+	err := uClient.Registry.Delete("reg-123")
 	if err != nil {
 		t.Fatalf("Delete failed: %v", err)
 	}
@@ -449,8 +450,8 @@ func TestSQSLifecycle(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
-	err := client.SQS.Delete("sqs-123")
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
+	err := uClient.SQS.Delete("sqs-123")
 	if err != nil {
 		t.Fatalf("Delete failed: %v", err)
 	}
@@ -469,8 +470,8 @@ func TestSSLLifecycle(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
-	err := client.SSL.Delete("cert-123")
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
+	err := uClient.SSL.Delete("cert-123")
 	if err != nil {
 		t.Fatalf("Delete failed: %v", err)
 	}
@@ -489,8 +490,8 @@ func TestStacksLifecycle(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
-	err := client.Stacks.Delete("stack-123")
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
+	err := uClient.Stacks.Delete("stack-123")
 	if err != nil {
 		t.Fatalf("Delete failed: %v", err)
 	}
@@ -509,8 +510,8 @@ func TestVPNLifecycle(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
-	err := client.VPN.Delete("vpn-123")
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
+	err := uClient.VPN.Delete("vpn-123")
 	if err != nil {
 		t.Fatalf("Delete failed: %v", err)
 	}
@@ -536,16 +537,16 @@ func TestWAFLifecycle(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
 
 	// Test Attach
-	err := client.WAF.Attach("waf-123", waf.AttachParams{ResourceID: "lb-123", ResourceType: "loadbalancer"})
+	err := uClient.WAF.Attach("waf-123", waf.AttachParams{ResourceID: "lb-123", ResourceType: "loadbalancer"})
 	if err != nil {
 		t.Fatalf("Attach failed: %v", err)
 	}
 
 	// Test Delete
-	err = client.WAF.Delete("waf-123")
+	err = uClient.WAF.Delete("waf-123")
 	if err != nil {
 		t.Fatalf("Delete failed: %v", err)
 	}
@@ -571,16 +572,16 @@ func TestBackupsLifecycle(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
 
 	// Test Restore
-	err := client.Backups.Restore("bkp-123", backups.RestoreParams{CloudID: "cloud-123"})
+	err := uClient.Backups.Restore("bkp-123", backups.RestoreParams{CloudID: "cloud-123"})
 	if err != nil {
 		t.Fatalf("Restore failed: %v", err)
 	}
 
 	// Test Delete
-	err = client.Backups.Delete("bkp-123")
+	err = uClient.Backups.Delete("bkp-123")
 	if err != nil {
 		t.Fatalf("Delete failed: %v", err)
 	}
@@ -607,10 +608,10 @@ func TestSecurityAPIKeys(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, _ := utho.NewClientWithConfig(utho.Config{BaseURL: server.URL})
+	client, _ := uClient.NewWithConfig(uClient.Config{BaseURL: server.URL})
 
 	// Test Generate
-	key, err := client.Security.GenerateAPIKey(security.GenerateAPIKeyParams{Label: "test-key"})
+	key, err := uClient.Security.GenerateAPIKey(security.GenerateAPIKeyParams{Label: "test-key"})
 	if err != nil {
 		t.Fatalf("GenerateAPIKey failed: %v", err)
 	}
@@ -619,7 +620,7 @@ func TestSecurityAPIKeys(t *testing.T) {
 	}
 
 	// Test Delete
-	err = client.Security.DeleteAPIKey("key-123")
+	err = uClient.Security.DeleteAPIKey("key-123")
 	if err != nil {
 		t.Fatalf("DeleteAPIKey failed: %v", err)
 	}

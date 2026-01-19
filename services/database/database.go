@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // DatabaseService handles communication with the database related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *DatabaseService {
 		client: client,
 	}
 }
+
+// NewClient creates a new DatabaseService with the provided API key.
+func NewClient(apiKey string) (*DatabaseService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // DBCluster represents a Utho Managed Database cluster.
 type DBCluster struct {

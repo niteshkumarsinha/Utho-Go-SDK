@@ -138,12 +138,17 @@
                 <p>The CLI can store your key in <code>~/.utho/config.json</code>:</p>
                 <pre><code>./utho configure</code></pre>
 
-                <h2>Programmatic Setup</h2>
-                <pre><code>// Uses default config (env or file)
-client, _ := utho.NewClient("")
+                <h2>Modular Package Import</h2>
+                <pre><code>import "github.com/niteshkumarsinha/utho-sdk-go/services/cloudserver"
 
-// Use explicit key
-client, _ := utho.NewClient("explicit-key")</code></pre>
+// Initialize specific service directly
+svc, err := cloudserver.NewClient("your-api-key")</code></pre>
+
+                <h2>Monolithic Client Setup</h2>
+                <pre><code>import "github.com/niteshkumarsinha/utho-sdk-go"
+
+// Uses default config (env or file) if API key is empty
+client, _ := utho.NewClient("your-api-key")</code></pre>
             </section>
 
             <section id="cli">
@@ -175,10 +180,10 @@ client, _ := utho.NewClient("explicit-key")</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List all servers
-servers, err := client.CloudServer.List()
+servers, err := svc.List()
 
 // Get specific server
-server, err := client.CloudServer.Get("server-id")
+server, err := svc.Get("server-id")
 
 // Deploy a new server
 params := cloudserver.DeployParams{
@@ -192,15 +197,15 @@ params := cloudserver.DeployParams{
         {Hostname: "my-server"},
     },
 }
-resp, err := client.CloudServer.Deploy(params)
+resp, err := svc.Deploy(params)
 
 // Power operations
-err = client.CloudServer.PowerOff("server-id")
-err = client.CloudServer.PowerOn("server-id")
-err = client.CloudServer.HardReboot("server-id")
+err = svc.PowerOff("server-id")
+err = svc.PowerOn("server-id")
+err = svc.HardReboot("server-id")
 
 // Delete server
-err = client.CloudServer.Delete("server-id")</code></pre>
+err = svc.Delete("server-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List servers
@@ -235,7 +240,7 @@ utho cloudserver delete &lt;server-id&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List autoscaling groups
-groups, err := client.Autoscaling.List()
+groups, err := svc.List()
 
 // Create autoscaling group
 params := autoscaling.CreateParams{
@@ -246,17 +251,17 @@ params := autoscaling.CreateParams{
     Plan:    "10045",
     Script:  "#!/bin/bash\necho 'Setup script'",
 }
-err = client.Autoscaling.Create(params)
+err = svc.Create(params)
 
 // Update group
 updateParams := autoscaling.UpdateParams{
     MinSize: 3,
     MaxSize: 15,
 }
-err = client.Autoscaling.Update("group-id", updateParams)
+err = svc.Update("group-id", updateParams)
 
 // Delete group
-err = client.Autoscaling.Delete("group-id")</code></pre>
+err = svc.Delete("group-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List groups
@@ -285,13 +290,13 @@ utho autoscaling delete &lt;group-id&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List backups
-backups, err := client.Backups.List()
+backups, err := svc.List()
 
 // Delete backup
-err = client.Backups.Delete("backup-id")
+err = svc.Delete("backup-id")
 
 // Restore backup to server
-err = client.Backups.Restore("backup-id", "server-id")</code></pre>
+err = svc.Restore("backup-id", "server-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List backups
@@ -317,17 +322,17 @@ utho backups restore &lt;backup-id&gt; --cloudid &lt;server-id&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List snapshots
-snapshots, err := client.Snapshots.List()
+snapshots, err := svc.List()
 
 // Create snapshot
 params := snapshots.CreateParams{
     CloudID: "server-id",
     Name:    "my-snapshot",
 }
-err = client.Snapshots.Create(params)
+err = svc.Create(params)
 
 // Delete snapshot
-err = client.Snapshots.Delete("server-id", "snapshot-id")</code></pre>
+err = svc.Delete("server-id", "snapshot-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List snapshots
@@ -353,7 +358,7 @@ utho snapshots delete &lt;snapshot-id&gt; --cloudid &lt;server-id&gt;</code></pr
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List ISOs
-isos, err := client.ISO.List()
+isos, err := svc.List()
 
 // Create/Upload ISO
 params := iso.CreateParams{
@@ -361,10 +366,10 @@ params := iso.CreateParams{
     URL:    "https://example.com/path/to/iso",
     DCSlug: "inmumbaizone2",
 }
-err = client.ISO.Create(params)
+err = svc.Create(params)
 
 // Delete ISO
-err = client.ISO.Delete("iso-id")</code></pre>
+err = svc.Delete("iso-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List ISOs
@@ -390,7 +395,7 @@ utho iso delete &lt;iso-id&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List VPCs
-vpcs, err := client.VPC.List()
+vpcs, err := svc.List()
 
 // Create VPC
 params := vpc.CreateParams{
@@ -398,10 +403,10 @@ params := vpc.CreateParams{
     Region: "inmumbaizone2",
     Range:  "10.0.0.0/16",
 }
-err = client.VPC.Create(params)
+err = svc.Create(params)
 
 // Delete VPC
-err = client.VPC.Delete("vpc-id")</code></pre>
+err = svc.Delete("vpc-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List VPCs
@@ -428,7 +433,7 @@ utho vpc delete &lt;vpc-id&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List load balancers
-lbs, err := client.LoadBalancer.List()
+lbs, err := svc.List()
 
 // Create load balancer
 params := loadbalancer.CreateParams{
@@ -436,16 +441,16 @@ params := loadbalancer.CreateParams{
     Name:   "my-lb",
     Type:   "http",
 }
-resp, err := client.LoadBalancer.Create(params)
+resp, err := svc.Create(params)
 
 // Update load balancer
 updateParams := loadbalancer.UpdateParams{
     Name: "updated-lb-name",
 }
-err = client.LoadBalancer.Update("lb-id", updateParams)
+err = svc.Update("lb-id", updateParams)
 
 // Delete load balancer
-err = client.LoadBalancer.Delete("lb-id")</code></pre>
+err = svc.Delete("lb-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List load balancers
@@ -477,24 +482,24 @@ utho loadbalancer delete &lt;lb-id&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// DNS Management
-domains, err := client.Networking.ListDomains()
+domains, err := svc.ListDomains()
 
 createParams := networking.CreateDomainParams{
     Domain: "example.com",
 }
-err = client.Networking.CreateDomain(createParams)
+err = svc.CreateDomain(createParams)
 
-err = client.Networking.DeleteDomain("example.com")
+err = svc.DeleteDomain("example.com")
 
 // Firewall Management
-firewalls, err := client.Networking.ListFirewalls()
+firewalls, err := svc.ListFirewalls()
 
 fwParams := networking.CreateFirewallParams{
     Name: "my-firewall",
 }
-err = client.Networking.CreateFirewall(fwParams)
+err = svc.CreateFirewall(fwParams)
 
-err = client.Networking.DeleteFirewall("firewall-id")</code></pre>
+err = svc.DeleteFirewall("firewall-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># DNS commands
@@ -521,7 +526,7 @@ utho networking delete-firewall &lt;firewall-id&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List VPNs
-vpns, err := client.VPN.List()
+vpns, err := svc.List()
 
 // Create VPN
 params := vpn.CreateParams{
@@ -529,10 +534,10 @@ params := vpn.CreateParams{
     DCSlug: "inmumbaizone2",
     Plan:   "10045",
 }
-err = client.VPN.Create(params)
+err = svc.Create(params)
 
 // Delete VPN
-err = client.VPN.Delete("vpn-id")</code></pre>
+err = svc.Delete("vpn-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List VPNs
@@ -560,27 +565,27 @@ utho vpn delete &lt;vpn-id&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List WAFs
-wafs, err := client.WAF.List()
+wafs, err := svc.List()
 
 // Create WAF
 params := waf.CreateParams{
     Name:   "my-waf",
     DCSlug: "inmumbaizone2",
 }
-err = client.WAF.Create(params)
+err = svc.Create(params)
 
 // Attach to load balancer
 attachParams := waf.AttachParams{
     ResourceID:   "lb-id",
     ResourceType: "loadbalancer",
 }
-err = client.WAF.Attach("waf-id", attachParams)
+err = svc.Attach("waf-id", attachParams)
 
 // Detach
-err = client.WAF.Detach("waf-id")
+err = svc.Detach("waf-id")
 
 // Delete
-err = client.WAF.Delete("waf-id")</code></pre>
+err = svc.Delete("waf-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List WAFs
@@ -614,7 +619,7 @@ utho waf delete &lt;waf-id&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List volumes
-volumes, err := client.Storage.List()
+volumes, err := svc.List()
 
 // Create volume
 params := storage.CreateParams{
@@ -623,19 +628,19 @@ params := storage.CreateParams{
     Size:     "50",
     DiskType: "ssd",
 }
-resp, err := client.Storage.Create(params)
+resp, err := svc.Create(params)
 
 // Attach to server
 attachParams := storage.AttachParams{
     ServerID: "server-id",
 }
-err = client.Storage.Attach("ebs-id", attachParams)
+err = svc.Attach("ebs-id", attachParams)
 
 // Detach
-err = client.Storage.Detach("ebs-id")
+err = svc.Detach("ebs-id")
 
 // Delete
-err = client.Storage.Delete("ebs-id")</code></pre>
+err = svc.Delete("ebs-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List volumes
@@ -669,7 +674,7 @@ utho storage delete &lt;ebs-id&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List buckets
-buckets, err := client.ObjectStorage.ListBuckets("inmumbaizone2")
+buckets, err := svc.ListBuckets("inmumbaizone2")
 
 // Create bucket
 params := objectstorage.CreateBucketParams{
@@ -678,16 +683,16 @@ params := objectstorage.CreateBucketParams{
     Size:    "250GB",
     Billing: "monthly",
 }
-resp, err := client.ObjectStorage.CreateBucket(params)
+resp, err := svc.CreateBucket(params)
 
 // Delete bucket
-err = client.ObjectStorage.DeleteBucket("inmumbaizone2", "my-bucket")
+err = svc.DeleteBucket("inmumbaizone2", "my-bucket")
 
 // List access keys
-keys, err := client.ObjectStorage.ListAccessKeys("inmumbaizone2")
+keys, err := svc.ListAccessKeys("inmumbaizone2")
 
 // Create access key
-key, err := client.ObjectStorage.CreateAccessKey("inmumbaizone2")</code></pre>
+key, err := svc.CreateAccessKey("inmumbaizone2")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List buckets
@@ -720,10 +725,10 @@ utho objectstorage create-key &lt;dcslug&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List clusters
-clusters, err := client.Kubernetes.List()
+clusters, err := svc.List()
 
 // Get cluster details
-cluster, err := client.Kubernetes.Get("cluster-id")
+cluster, err := svc.Get("cluster-id")
 
 // Create cluster
 params := kubernetes.CreateParams{
@@ -737,10 +742,10 @@ params := kubernetes.CreateParams{
         },
     },
 }
-err = client.Kubernetes.Create(params)
+err = svc.Create(params)
 
 // Delete cluster
-err = client.Kubernetes.Delete("cluster-id")</code></pre>
+err = svc.Delete("cluster-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List clusters
@@ -770,10 +775,10 @@ utho kubernetes delete &lt;cluster-id&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List databases
-databases, err := client.Database.List()
+databases, err := svc.List()
 
 // Get database details
-db, err := client.Database.Get("db-id")
+db, err := svc.Get("db-id")
 
 // Create database
 params := database.CreateParams{
@@ -784,10 +789,10 @@ params := database.CreateParams{
     PlanID:   "10045",
     Replicas: 2,
 }
-err = client.Database.Create(params)
+err = svc.Create(params)
 
 // Delete database
-err = client.Database.Delete("db-id")</code></pre>
+err = svc.Delete("db-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List databases
@@ -816,17 +821,17 @@ utho database delete &lt;db-id&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List queues
-queues, err := client.SQS.List()
+queues, err := svc.List()
 
 // Create queue
 params := sqs.CreateParams{
     Name:   "my-queue",
     DCSlug: "inmumbaizone2",
 }
-err = client.SQS.Create(params)
+err = svc.Create(params)
 
 // Delete queue
-err = client.SQS.Delete("queue-id")</code></pre>
+err = svc.Delete("queue-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List queues
@@ -852,17 +857,17 @@ utho sqs delete &lt;queue-id&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List registries
-registries, err := client.Registry.List()
+registries, err := svc.List()
 
 // Create registry
 params := registry.CreateParams{
     Name:   "my-registry",
     DCSlug: "inmumbaizone2",
 }
-err = client.Registry.Create(params)
+err = svc.Create(params)
 
 // Delete registry
-err = client.Registry.Delete("registry-id")</code></pre>
+err = svc.Delete("registry-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List registries
@@ -889,7 +894,7 @@ utho registry delete &lt;registry-id&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List stacks
-stacks, err := client.Stacks.List()
+stacks, err := svc.List()
 
 // Create stack
 params := stacks.CreateParams{
@@ -899,16 +904,16 @@ params := stacks.CreateParams{
     Script:      "#!/bin/bash\napt-get update",
     Status:      "1",
 }
-err = client.Stacks.Create(params)
+err = svc.Create(params)
 
 // Update stack
 updateParams := stacks.UpdateParams{
     Title: "Updated Stack",
 }
-err = client.Stacks.Update("stack-id", updateParams)
+err = svc.Update("stack-id", updateParams)
 
 // Delete stack
-err = client.Stacks.Delete("stack-id")</code></pre>
+err = svc.Delete("stack-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List stacks
@@ -936,7 +941,7 @@ utho stacks delete &lt;stack-id&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// Initiate transfer (sender)
-err := client.Transfer.Initiate("cloudserver", "server-id")
+err := svc.Initiate("cloudserver", "server-id")
 
 // Receive transfer (recipient)
 params := transfer.ReceiveParams{
@@ -944,7 +949,7 @@ params := transfer.ReceiveParams{
     Token: "transfer-token",
     Type:  "cloudserver",
 }
-err = client.Transfer.Receive(params)</code></pre>
+err = svc.Receive(params)</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># Initiate transfer
@@ -965,7 +970,7 @@ utho transfer receive cloudserver &lt;resource-id&gt; &lt;token&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// Get account info
-info, err := client.Account.GetInfo()
+info, err := svc.GetInfo()
 
 fmt.Printf("Email: %s\n", info.Email)
 fmt.Printf("Balance: %s %s\n", info.Balance, info.Currency)
@@ -992,25 +997,25 @@ utho account info</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// SSH Keys
-sshKeys, err := client.Security.ListSSHKeys()
+sshKeys, err := svc.ListSSHKeys()
 
 importParams := security.ImportSSHKeyParams{
     Name: "my-key",
     Key:  "ssh-rsa AAAAB3...",
 }
-err = client.Security.ImportSSHKey(importParams)
+err = svc.ImportSSHKey(importParams)
 
-err = client.Security.DeleteSSHKey("key-id")
+err = svc.DeleteSSHKey("key-id")
 
 // API Keys
-apiKeys, err := client.Security.ListAPIKeys()
+apiKeys, err := svc.ListAPIKeys()
 
 genParams := security.GenerateAPIKeyParams{
     Label: "my-api-key",
 }
-key, err := client.Security.GenerateAPIKey(genParams)
+key, err := svc.GenerateAPIKey(genParams)
 
-err = client.Security.DeleteAPIKey("key-id")</code></pre>
+err = svc.DeleteAPIKey("key-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># SSH Keys
@@ -1037,7 +1042,7 @@ utho security delete-apikey &lt;key-id&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List certificates
-certs, err := client.SSL.List()
+certs, err := svc.List()
 
 // Upload certificate
 params := ssl.CreateParams{
@@ -1046,10 +1051,10 @@ params := ssl.CreateParams{
     PrivateKey:  "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----",
     Chain:       "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
 }
-err = client.SSL.Create(params)
+err = svc.Create(params)
 
 // Delete certificate
-err = client.SSL.Delete("cert-id")</code></pre>
+err = svc.Delete("cert-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List certificates
@@ -1075,7 +1080,7 @@ utho ssl delete &lt;cert-id&gt;</code></pre>
 
                 <h3>SDK Usage</h3>
                 <pre><code>// List alert policies
-policies, err := client.Monitoring.ListAlertPolicies()
+policies, err := svc.ListAlertPolicies()
 
 // Create alert policy
 params := monitoring.CreateAlertPolicyParams{
@@ -1086,10 +1091,10 @@ params := monitoring.CreateAlertPolicyParams{
 params.Thresholds.CPU = 80
 params.Thresholds.RAM = 90
 
-err = client.Monitoring.CreateAlertPolicy(params)
+err = svc.CreateAlertPolicy(params)
 
 // Delete policy
-err = client.Monitoring.DeleteAlertPolicy("policy-id")</code></pre>
+err = svc.DeleteAlertPolicy("policy-id")</code></pre>
 
                 <h3>CLI Commands</h3>
                 <pre><code># List alert policies

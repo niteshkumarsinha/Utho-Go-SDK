@@ -47,7 +47,12 @@ See [INSTALL.md](INSTALL.md) for detailed installation instructions.
 
 ## Quick Start
 
-### SDK Example
+### SDK Usage
+
+You can use the Utho SDK in two ways: **Modular** (recommended) or **Monolithic**.
+
+#### 🧩 Modular (Recommended)
+Import only the services you need to keep your binary small and dependencies clean.
 
 ```go
 package main
@@ -56,24 +61,34 @@ import (
     "fmt"
     "log"
     
-    "github.com/niteshkumarsinha/utho-sdk-go"
+    "github.com/niteshkumarsinha/utho-sdk-go/services/cloudserver"
 )
 
 func main() {
-    // Create client
-    client, err := utho.NewClient("your-api-key")
+    // Initialize specific service
+    svc, err := cloudserver.NewClient("your-api-key")
     if err != nil {
         log.Fatal(err)
     }
     
-    // List cloud servers
-    servers, err := client.CloudServer.List()
+    // Use the service directly
+    servers, err := svc.List()
     if err != nil {
         log.Fatal(err)
     }
     
     fmt.Printf("Found %d servers\n", len(servers))
 }
+```
+
+#### 🏢 Monolithic
+Access all 22 services via a single client. Useful for large integrations.
+
+```go
+import "github.com/niteshkumarsinha/utho-sdk-go"
+
+client, _ := utho.NewClient("your-api-key")
+servers, _ := client.CloudServer.List()
 ```
 
 ### CLI Example
@@ -98,45 +113,54 @@ utho cloudserver deploy --zone inmumbaizone2 --plan 10045 --image ubuntu-20.04-x
 export UTHO_APIKEY="your-api-key-here"
 ```
 
-### Configuration File (CLI)
-
-```bash
-utho configure
-# Enter your API key when prompted
-# Saves to ~/.utho/config.json
-```
-
 ### Programmatic
 
+#### Monolithic Pattern
 ```go
-// Method 1: Direct API key
+import "github.com/niteshkumarsinha/utho-sdk-go"
+import "github.com/niteshkumarsinha/utho-sdk-go/client"
+
+// Direct API key
 client, err := utho.NewClient("your-api-key")
 
-// Method 2: Custom configuration
-config := utho.Config{
+// Custom configuration
+config := client.Config{
     APIKey:  "your-api-key",
     BaseURL: "https://api.utho.com/v2",
 }
 client, err := utho.NewClientWithConfig(config)
 ```
 
+#### Modular Pattern
+```go
+import "github.com/niteshkumarsinha/utho-sdk-go/services/objectstorage"
+
+// Initialize specific service directly
+svc, err := objectstorage.NewClient("your-api-key")
+```
+
 ## SDK Usage
 
 ### Client Initialization
 
+Each service package provides its own `NewClient` helper. The low-level client is also available in the `client` package.
+
 ```go
-import "github.com/niteshkumarsinha/utho-sdk-go"
+import (
+    "github.com/niteshkumarsinha/utho-sdk-go/client"
+    "github.com/niteshkumarsinha/utho-sdk-go/services/cloudserver"
+)
 
-// Simple initialization
-client, err := utho.NewClient("your-api-key")
+// 1. Service-specific initialization (Recommended)
+svc, err := cloudserver.NewClient("your-api-key")
 
-// With custom HTTP client
-httpClient := &http.Client{Timeout: 60 * time.Second}
-config := utho.Config{
-    APIKey:     "your-api-key",
-    HTTPClient: httpClient,
+// 2. Custom configuration via client package
+cfg := client.Config{
+    APIKey: "your-api-key",
+    HTTPClient: &http.Client{Timeout: 60 * time.Second},
 }
-client, err := utho.NewClientWithConfig(config)
+clientObj, err := client.NewWithConfig(cfg)
+svc := cloudserver.NewService(clientObj)
 ```
 
 ### Available Services

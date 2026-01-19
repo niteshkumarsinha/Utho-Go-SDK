@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // StacksService handles communication with the stack related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *StacksService {
 		client: client,
 	}
 }
+
+// NewClient creates a new StacksService with the provided API key.
+func NewClient(apiKey string) (*StacksService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // Stack represents a Utho automation stack.
 type Stack struct {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // CloudServerService handles communication with the cloud server related methods of the Utho API.
@@ -19,6 +19,16 @@ func NewService(client *client.Client) *CloudServerService {
 		client: client,
 	}
 }
+
+// NewClient creates a new CloudServerService with the provided API key.
+func NewClient(apiKey string) (*CloudServerService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // Instance represents a Utho cloud instance.
 type Instance struct {

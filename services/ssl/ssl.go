@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // SslService handles communication with the SSL certificate related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *SslService {
 		client: client,
 	}
 }
+
+// NewClient creates a new SslService with the provided API key.
+func NewClient(apiKey string) (*SslService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // Certificate represents an SSL certificate.
 type Certificate struct {

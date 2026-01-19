@@ -53,9 +53,11 @@ This directory contains comprehensive examples demonstrating how to use the Utho
 - **[account](services/account/)** - Get account information
 - **[transfer](services/transfer/)** - Transfer resources between accounts
 
-## Example Pattern
+## Example Patterns
 
-Each service example follows this structure:
+### 🧩 Modular Pattern (Recommended)
+
+Import only the service package you need.
 
 ```go
 package main
@@ -65,25 +67,37 @@ import (
     "log"
     "os"
     
-    "github.com/niteshkumarsinha/utho-sdk-go"
+    "github.com/niteshkumarsinha/utho-sdk-go/services/cloudserver"
 )
 
 func main() {
-    // Get API key from environment
     apiKey := os.Getenv("UTHO_API_KEY")
     if apiKey == "" {
         log.Fatal("UTHO_API_KEY environment variable is required")
     }
     
-    // Create client
-    client, err := utho.NewClient(apiKey)
+    // Create service client directly
+    svc, err := cloudserver.NewClient(apiKey)
     if err != nil {
-        log.Fatalf("Error creating client: %v", err)
+        log.Fatalf("Error: %v", err)
     }
     
-    // Demonstrate CRUD operations
-    // ...
+    // Use service
+    servers, _ := svc.List()
+    fmt.Printf("Found %d servers\n", len(servers))
 }
+```
+
+### 🏢 Monolithic Pattern
+
+Use if you need to access multiple services in the same application.
+
+```go
+import "github.com/niteshkumarsinha/utho-sdk-go"
+
+client, _ := utho.NewClient(apiKey)
+servers, _ := client.CloudServer.List()
+lbs, _ := client.LoadBalancer.List()
 ```
 
 ## Notes

@@ -1,10 +1,11 @@
+// Package utho provides a monolithic client wrapper for all 22 Utho Cloud services.
+// While individual services can be used independently using their respective packages
+// under services/, this package provides a convenient way to access all services
+// through a single Client object.
 package utho
 
 import (
-	"net/http"
-	"time"
-
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 	"github.com/niteshkumarsinha/utho-sdk-go/services/account"
 	"github.com/niteshkumarsinha/utho-sdk-go/services/autoscaling"
 	"github.com/niteshkumarsinha/utho-sdk-go/services/backups"
@@ -29,28 +30,9 @@ import (
 	"github.com/niteshkumarsinha/utho-sdk-go/services/waf"
 )
 
-const (
-	// DefaultBaseURL is the default endpoint for the Utho API v2.
-	DefaultBaseURL = "https://api.utho.com/v2"
-	// DefaultTimeout is the default timeout for HTTP requests to the API.
-	DefaultTimeout = 30 * time.Second
-)
-
-// Config holds the configuration for the Utho SDK client.
-// It allows setting the BaseURL, APIKey, and a custom HTTPClient.
-type Config struct {
-	// BaseURL is the Utho API version endpoint (default: https://api.utho.com/v2).
-	BaseURL string
-	// APIKey is your Utho API key used for authentication.
-	APIKey string
-	// HTTPClient is an optional custom *http.Client.
-	HTTPClient *http.Client
-}
-
 // Client is the main entry point for the Utho SDK.
 // It provides access to all 22 service clients.
 type Client struct {
-	config     Config
 	httpClient *client.Client
 
 	Account       *account.AccountService
@@ -78,33 +60,20 @@ type Client struct {
 }
 
 // NewClient creates a new Utho SDK client with the provided API key.
-// It uses default configuration values for BaseURL and HTTPClient.
 func NewClient(apiKey string) (*Client, error) {
-	return NewClientWithConfig(Config{
+	return NewClientWithConfig(client.Config{
 		APIKey: apiKey,
 	})
 }
 
 // NewClientWithConfig creates a new Utho SDK client using the provided custom configuration.
-// It defaults missing fields to their respective DefaultBaseURL and DefaultTimeout.
-func NewClientWithConfig(cfg Config) (*Client, error) {
-	if cfg.BaseURL == "" {
-		cfg.BaseURL = DefaultBaseURL
-	}
-	if cfg.HTTPClient == nil {
-		cfg.HTTPClient = &http.Client{
-			Timeout: DefaultTimeout,
-		}
-	}
-
-	c := &client.Client{
-		BaseURL:    cfg.BaseURL,
-		APIKey:     cfg.APIKey,
-		HTTPClient: cfg.HTTPClient,
+func NewClientWithConfig(cfg client.Config) (*Client, error) {
+	c, err := client.NewWithConfig(cfg)
+	if err != nil {
+		return nil, err
 	}
 
 	return &Client{
-		config:        cfg,
 		httpClient:    c,
 		Account:       account.NewService(c),
 		Autoscaling:   autoscaling.NewService(c),

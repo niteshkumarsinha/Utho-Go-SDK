@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // SqsService handles communication with the SQS related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *SqsService {
 		client: client,
 	}
 }
+
+// NewClient creates a new SqsService with the provided API key.
+func NewClient(apiKey string) (*SqsService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // SQSInstance represents an SQS instance.
 type SQSInstance struct {

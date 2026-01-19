@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // LoadBalancerService handles communication with the loadbalancer related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *LoadBalancerService {
 		client: client,
 	}
 }
+
+// NewClient creates a new LoadBalancerService with the provided API key.
+func NewClient(apiKey string) (*LoadBalancerService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // LoadBalancer represents a Utho Load Balancer.
 type LoadBalancer struct {

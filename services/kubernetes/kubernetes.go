@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // KubernetesService handles communication with the kubernetes related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *KubernetesService {
 		client: client,
 	}
 }
+
+// NewClient creates a new KubernetesService with the provided API key.
+func NewClient(apiKey string) (*KubernetesService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // Cluster represents a Utho Kubernetes cluster.
 type Cluster struct {

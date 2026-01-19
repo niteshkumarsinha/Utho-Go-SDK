@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // SnapshotsService handles communication with the snapshot related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *SnapshotsService {
 		client: client,
 	}
 }
+
+// NewClient creates a new SnapshotsService with the provided API key.
+func NewClient(apiKey string) (*SnapshotsService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // Snapshot represents a Utho cloud server snapshot.
 type Snapshot struct {

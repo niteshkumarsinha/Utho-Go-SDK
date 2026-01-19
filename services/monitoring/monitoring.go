@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // MonitoringService handles communication with the monitoring and alert related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *MonitoringService {
 		client: client,
 	}
 }
+
+// NewClient creates a new MonitoringService with the provided API key.
+func NewClient(apiKey string) (*MonitoringService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // AlertPolicy represents a monitoring alert policy.
 type AlertPolicy struct {

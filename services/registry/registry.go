@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // RegistryService handles communication with the container registry related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *RegistryService {
 		client: client,
 	}
 }
+
+// NewClient creates a new RegistryService with the provided API key.
+func NewClient(apiKey string) (*RegistryService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // Registry represents a Utho Container Registry.
 type Registry struct {

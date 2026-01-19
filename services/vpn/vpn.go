@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // VpnService handles communication with the VPN and IPsec related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *VpnService {
 		client: client,
 	}
 }
+
+// NewClient creates a new VpnService with the provided API key.
+func NewClient(apiKey string) (*VpnService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // VpnInstance represents a Utho VPN instance.
 type VpnInstance struct {

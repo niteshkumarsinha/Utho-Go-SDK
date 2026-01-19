@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // TransferService handles communication with the resource transfer related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *TransferService {
 		client: client,
 	}
 }
+
+// NewClient creates a new TransferService with the provided API key.
+func NewClient(apiKey string) (*TransferService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // ReceiveParams represents the parameters for receiving a resource.
 type ReceiveParams struct {

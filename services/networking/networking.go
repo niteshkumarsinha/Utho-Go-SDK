@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // NetworkingService handles communication with the networking (DNS, Firewall) related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *NetworkingService {
 		client: client,
 	}
 }
+
+// NewClient creates a new NetworkingService with the provided API key.
+func NewClient(apiKey string) (*NetworkingService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // Domain represents a DNS domain.
 type Domain struct {

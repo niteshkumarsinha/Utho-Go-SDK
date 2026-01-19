@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // SecurityService handles communication with the security (SSH Keys) related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *SecurityService {
 		client: client,
 	}
 }
+
+// NewClient creates a new SecurityService with the provided API key.
+func NewClient(apiKey string) (*SecurityService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // SSHKey represents a Utho SSH key.
 type SSHKey struct {

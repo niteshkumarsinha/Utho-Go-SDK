@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/niteshkumarsinha/utho-sdk-go/internal/client"
+	"github.com/niteshkumarsinha/utho-sdk-go/client"
 )
 
 // VPCService handles communication with the VPC related methods of the Utho API.
@@ -18,6 +18,16 @@ func NewService(client *client.Client) *VPCService {
 		client: client,
 	}
 }
+
+// NewClient creates a new VPCService with the provided API key.
+func NewClient(apiKey string) (*VPCService, error) {
+	c, err := client.New(apiKey)
+	if err != nil {
+		return nil, err
+	}
+	return NewService(c), nil
+}
+
 
 // VPC represents a Utho VPC.
 type VPC struct {
